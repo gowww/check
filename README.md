@@ -40,7 +40,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides form validati
 		})
 		```
 
-	- From a [http.Request](https://golang.org/pkg/net/http/#Request):
+	- From an [http.Request](https://golang.org/pkg/net/http/#Request):
 	
 		```Go
 		errs := checker.CheckRequest(r)

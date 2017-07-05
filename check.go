@@ -34,6 +34,10 @@ func (c Checker) Check(data map[string][]string) Errors {
 					errs.Add(key, IsEmail(v)...)
 				} else if rule == "integer" {
 					errs.Add(key, IsInteger(v)...)
+				} else if rule == "latitude" {
+					errs.Add(key, IsLatitude(v)...)
+				} else if rule == "longitude" {
+					errs.Add(key, IsLongitude(v)...)
 				} else if rule == "number" {
 					errs.Add(key, IsNumber(v)...)
 				} else if rule == "phone" {

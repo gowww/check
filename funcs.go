@@ -11,7 +11,7 @@ var (
 	rePhone = regexp.MustCompile(`^\+?(\d|\(|\)|\.|\s){9,20}$`)
 )
 
-// IsEmail checks if v is an email.
+// IsEmail checks if v represents an email.
 func IsEmail(v string) []error {
 	if reEmail.MatchString(v) {
 		return nil
@@ -19,15 +19,39 @@ func IsEmail(v string) []error {
 	return []error{ErrNotEmail}
 }
 
-// IsInRange check if v is a number in a certain range.
+// IsInRange check if v represents a number inside a range.
 func IsInRange(v string, min, max float64) []error {
 	return append(IsMax(v, max), IsMin(v, min)...)
 }
 
-// IsInteger check if v is an integer.
+// IsInteger check if v represents an integer.
 func IsInteger(v string) []error {
 	if _, err := strconv.Atoi(v); err != nil {
 		return []error{ErrNotInteger}
+	}
+	return nil
+}
+
+// IsLatitude check if v represents a latitude.
+func IsLatitude(v string) []error {
+	f, err := strconv.ParseFloat(v, 64)
+	if err != nil {
+		return []error{ErrNotNumber}
+	}
+	if f < -90 || f > 90 {
+		return []error{ErrNotLatitude}
+	}
+	return nil
+}
+
+// IsLongitude check if v represents a longitude.
+func IsLongitude(v string) []error {
+	f, err := strconv.ParseFloat(v, 64)
+	if err != nil {
+		return []error{ErrNotNumber}
+	}
+	if f < -90 || f > 90 {
+		return []error{ErrNotLongitude}
 	}
 	return nil
 }
@@ -56,7 +80,7 @@ func IsMin(v string, min float64) []error {
 	return nil
 }
 
-// IsNumber check if v is a number.
+// IsNumber check if v represents a number.
 func IsNumber(v string) []error {
 	_, err := strconv.ParseFloat(v, 64)
 	if err != nil {
@@ -65,7 +89,7 @@ func IsNumber(v string) []error {
 	return nil
 }
 
-// IsPhone checks if v is a phone number.
+// IsPhone checks if v represents a phone number.
 func IsPhone(v string) []error {
 	if rePhone.MatchString(v) {
 		return nil
