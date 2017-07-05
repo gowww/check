@@ -4,23 +4,24 @@ import "errors"
 
 // Error identifiers.
 var (
-	ErrOK          = errors.New("ok")
-	ErrIllogical   = errors.New("illogical")
-	ErrInvalid     = errors.New("invalid")
-	ErrMax         = errors.New("max")
-	ErrMaxFileSize = errors.New("maxFileSize")
-	ErrMaxLength   = errors.New("maxLength")
-	ErrMin         = errors.New("min")
-	ErrMinFileSize = errors.New("minFileSize")
-	ErrMinLength   = errors.New("minLength")
-	ErrNotEmail    = errors.New("notEmail")
-	ErrNotImage    = errors.New("notImage")
-	ErrNotInteger  = errors.New("notInteger")
-	ErrNotFloat    = errors.New("notFloat")
-	ErrNotNumber   = errors.New("notNumber")
-	ErrNotPhone    = errors.New("notPhone")
-	ErrNotUnique   = errors.New("notUnique")
-	ErrRequired    = errors.New("required")
+	ErrIllogical    = errors.New("illogical")
+	ErrInvalid      = errors.New("invalid")
+	ErrMax          = errors.New("max")
+	ErrMaxFileSize  = errors.New("maxFileSize")
+	ErrMaxLength    = errors.New("maxLength")
+	ErrMin          = errors.New("min")
+	ErrMinFileSize  = errors.New("minFileSize")
+	ErrMinLength    = errors.New("minLength")
+	ErrNotEmail     = errors.New("notEmail")
+	ErrNotImage     = errors.New("notImage")
+	ErrNotLatitude  = errors.New("notLatitude")
+	ErrNotLongitude = errors.New("notLongitude")
+	ErrNotInteger   = errors.New("notInteger")
+	ErrNotFloat     = errors.New("notFloat")
+	ErrNotNumber    = errors.New("notNumber")
+	ErrNotPhone     = errors.New("notPhone")
+	ErrNotUnique    = errors.New("notUnique")
+	ErrRequired     = errors.New("required")
 )
 
 // Errors is a map of keys and their errors.
@@ -82,7 +83,7 @@ func (e Errors) Merge(e2 Errors) {
 	}
 }
 
-// JSON returns formatted errors ready to be used in a JSON response.
+// JSON returns the errors map ready to be encoded.
 func (e Errors) JSON() map[string]interface{} {
 	return map[string]interface{}{"errors": e}
 }
