@@ -58,7 +58,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides form validati
 
 	```Go
 	if errs.NotEmpty() {
-		errsjs, _ := json.Marshal(errs)
+		errsjs, _ := json.Marshal(errs.JSON())
 		w.Write(errsjs)
 	}
 	```
