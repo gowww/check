@@ -1,6 +1,7 @@
 package check
 
 import (
+	"database/sql"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -133,4 +134,17 @@ func IsPhone(v string) []string {
 		return nil
 	}
 	return []string{ErrNotPhone}
+}
+
+// IsUnique checks if v is unique in database.
+// If check pass, nil is returned.
+func IsUnique(db *sql.DB, table, column, placeholder, v string) []string {
+	var n int
+	if err := db.QueryRow("SELECT COUNT() FROM "+table+" WHERE "+column+" = "+placeholder, v).Scan(&n); err != nil {
+		panic(err)
+	}
+	if n > 0 {
+		return []string{ErrNotUnique}
+	}
+	return nil
 }
