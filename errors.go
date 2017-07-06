@@ -12,6 +12,7 @@ var (
 	ErrMin          = errors.New("min")
 	ErrMinFileSize  = errors.New("minFileSize")
 	ErrMinLength    = errors.New("minLength")
+	ErrNotAlpha     = errors.New("notAlpha")
 	ErrNotEmail     = errors.New("notEmail")
 	ErrNotFloat     = errors.New("notFloat")
 	ErrNotImage     = errors.New("notImage")
@@ -65,8 +66,8 @@ func (e Errors) Has(key string) bool {
 	return ok
 }
 
-// FirstError returns the first error of key.
-func (e Errors) FirstError(key string) (err error) {
+// Get returns the first error of key.
+func (e Errors) Get(key string) (err error) {
 	v := e[key]
 	if len(v) > 0 {
 		err = v[0]
