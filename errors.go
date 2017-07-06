@@ -84,7 +84,7 @@ func (e Errors) Merge(e2 Errors) {
 	}
 }
 
-// JSON returns the errors map ready to be encoded.
+// JSON returns the errors map under the "errors" key, ready to be encoded.
 func (e Errors) JSON() map[string]interface{} {
 	return map[string]interface{}{"errors": e}
 }

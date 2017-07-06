@@ -1,6 +1,10 @@
 package check_test
 
-import "github.com/gowww/check"
+import (
+	"fmt"
+
+	"github.com/gowww/check"
+)
 
 func Example() {
 	checker := check.Checker{
@@ -16,6 +20,6 @@ func Example() {
 	})
 
 	if errs.NotEmpty() {
-		// Handle errors.
+		fmt.Println(errs)
 	}
 }

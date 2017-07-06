@@ -12,6 +12,7 @@ var (
 )
 
 // IsAlpha checks if v contains alpha characters only.
+// If check pass, nil is returned.
 func IsAlpha(v string) []error {
 	for i := 0; i < len(v); i++ {
 		if v[i] < 65 || v[i] > 90 && v[i] < 97 || v[i] > 122 {
@@ -22,6 +23,7 @@ func IsAlpha(v string) []error {
 }
 
 // IsEmail checks if v represents an email.
+// If check pass, nil is returned.
 func IsEmail(v string) []error {
 	if reEmail.MatchString(v) {
 		return nil
@@ -29,12 +31,14 @@ func IsEmail(v string) []error {
 	return []error{ErrNotEmail}
 }
 
-// IsInRange check if v represents a number inside a range.
+// IsInRange checks if v represents a number inside a range.
+// If check pass, nil is returned.
 func IsInRange(v string, min, max float64) []error {
 	return append(IsMax(v, max), IsMin(v, min)...)
 }
 
-// IsInteger check if v represents an integer.
+// IsInteger checks if v represents an integer.
+// If check pass, nil is returned.
 func IsInteger(v string) []error {
 	if _, err := strconv.Atoi(v); err != nil {
 		return []error{ErrNotInteger}
@@ -42,7 +46,8 @@ func IsInteger(v string) []error {
 	return nil
 }
 
-// IsLatitude check if v represents a latitude.
+// IsLatitude checks if v represents a latitude.
+// If check pass, nil is returned.
 func IsLatitude(v string) []error {
 	f, err := strconv.ParseFloat(v, 64)
 	if err != nil {
@@ -54,7 +59,8 @@ func IsLatitude(v string) []error {
 	return nil
 }
 
-// IsLongitude check if v represents a longitude.
+// IsLongitude checks if v represents a longitude.
+// If check pass, nil is returned.
 func IsLongitude(v string) []error {
 	f, err := strconv.ParseFloat(v, 64)
 	if err != nil {
@@ -66,7 +72,8 @@ func IsLongitude(v string) []error {
 	return nil
 }
 
-// IsMax check if v is below or equals max.
+// IsMax checks if v is below or equals max.
+// If check pass, nil is returned.
 func IsMax(v string, max float64) []error {
 	f, err := strconv.ParseFloat(v, 64)
 	if err != nil {
@@ -78,7 +85,8 @@ func IsMax(v string, max float64) []error {
 	return nil
 }
 
-// IsMaxLen check if v length is below or equals max.
+// IsMaxLen checks if v length is below or equals max.
+// If check pass, nil is returned.
 func IsMaxLen(v string, max int) []error {
 	if len(v) > max {
 		return []error{fmt.Errorf("%v:%v", ErrMaxLen, max)}
@@ -86,7 +94,8 @@ func IsMaxLen(v string, max int) []error {
 	return nil
 }
 
-// IsMin check if v is over or equals min.
+// IsMin checks if v is over or equals min.
+// If check pass, nil is returned.
 func IsMin(v string, min float64) []error {
 	f, err := strconv.ParseFloat(v, 64)
 	if err != nil {
@@ -98,7 +107,8 @@ func IsMin(v string, min float64) []error {
 	return nil
 }
 
-// IsMinLen check if v length is over or equals min.
+// IsMinLen checks if v length is over or equals min.
+// If check pass, nil is returned.
 func IsMinLen(v string, min int) []error {
 	if len(v) < min {
 		return []error{fmt.Errorf("%v:%v", ErrMinLen, min)}
@@ -106,7 +116,8 @@ func IsMinLen(v string, min int) []error {
 	return nil
 }
 
-// IsNumber check if v represents a number.
+// IsNumber checks if v represents a number.
+// If check pass, nil is returned.
 func IsNumber(v string) []error {
 	_, err := strconv.ParseFloat(v, 64)
 	if err != nil {
@@ -116,6 +127,7 @@ func IsNumber(v string) []error {
 }
 
 // IsPhone checks if v represents a phone number.
+// If check pass, nil is returned.
 func IsPhone(v string) []error {
 	if rePhone.MatchString(v) {
 		return nil
