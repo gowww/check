@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	reEmail = regexp.MustCompile(`.+@.+\..+`)
+	reEmail = regexp.MustCompile(`^[^@]+@[^@]+\.[^@]{2,63}$`)
 	rePhone = regexp.MustCompile(`^\+?(\d|\(|\)|\.|\s){9,20}$`)
 )
 
