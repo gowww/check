@@ -50,7 +50,7 @@ func IsLongitude(v string) []error {
 	if err != nil {
 		return []error{ErrNotNumber}
 	}
-	if f < -90 || f > 90 {
+	if f < -180 || f > 180 {
 		return []error{ErrNotLongitude}
 	}
 	return nil
