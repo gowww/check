@@ -1,38 +1,36 @@
 package check
 
-import "errors"
-
 // Error identifiers.
-var (
-	ErrIllogical    = errors.New("illogical")
-	ErrInvalid      = errors.New("invalid")
-	ErrMax          = errors.New("max")
-	ErrMaxFileSize  = errors.New("maxFileSize")
-	ErrMaxLen       = errors.New("maxLen")
-	ErrMin          = errors.New("min")
-	ErrMinFileSize  = errors.New("minFileSize")
-	ErrMinLen       = errors.New("minLen")
-	ErrNotAlpha     = errors.New("notAlpha")
-	ErrNotEmail     = errors.New("notEmail")
-	ErrNotFloat     = errors.New("notFloat")
-	ErrNotImage     = errors.New("notImage")
-	ErrNotInteger   = errors.New("notInteger")
-	ErrNotLatitude  = errors.New("notLatitude")
-	ErrNotLongitude = errors.New("notLongitude")
-	ErrNotNumber    = errors.New("notNumber")
-	ErrNotPhone     = errors.New("notPhone")
-	ErrNotUnique    = errors.New("notUnique")
-	ErrRequired     = errors.New("required")
+const (
+	ErrIllogical    = "illogical"
+	ErrInvalid      = "invalid"
+	ErrMax          = "max"
+	ErrMaxFileSize  = "maxFileSize"
+	ErrMaxLen       = "maxLen"
+	ErrMin          = "min"
+	ErrMinFileSize  = "minFileSize"
+	ErrMinLen       = "minLen"
+	ErrNotAlpha     = "notAlpha"
+	ErrNotEmail     = "notEmail"
+	ErrNotFloat     = "notFloat"
+	ErrNotImage     = "notImage"
+	ErrNotInteger   = "notInteger"
+	ErrNotLatitude  = "notLatitude"
+	ErrNotLongitude = "notLongitude"
+	ErrNotNumber    = "notNumber"
+	ErrNotPhone     = "notPhone"
+	ErrNotUnique    = "notUnique"
+	ErrRequired     = "required"
 )
 
 // Errors is a map of keys and their errors.
-type Errors map[string][]error
+type Errors map[string][]string
 
 // Add appends a failed validation Error to key.
-func (e Errors) Add(key string, errs ...error) {
+func (e Errors) Add(key string, errs ...string) {
 	for _, err := range errs {
 		if err == ErrRequired { // ErrRequired is always lonely.
-			e[key] = []error{ErrRequired}
+			e[key] = []string{ErrRequired}
 			return
 		}
 		if errs := e[key]; len(errs) > 0 {
@@ -43,7 +41,7 @@ func (e Errors) Add(key string, errs ...error) {
 			}
 		}
 		if e[key] == nil {
-			e[key] = []error{err}
+			e[key] = []string{err}
 		} else {
 			e[key] = append(e[key], err)
 		}
@@ -67,12 +65,12 @@ func (e Errors) Has(key string) bool {
 }
 
 // Get returns the first error of key.
-func (e Errors) Get(key string) (err error) {
+func (e Errors) Get(key string) (err string) {
 	v := e[key]
-	if len(v) > 0 {
-		err = v[0]
+	if len(v) == 0 {
+		return ""
 	}
-	return
+	return v[0]
 }
 
 // Merge merges 2 error maps.
