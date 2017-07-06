@@ -108,6 +108,8 @@ func ruleCheck(errs Errors, rule, k, v string) {
 		} else if rule == RuleRange {
 			min, max := parseRuleFloat64Float64(rule, args)
 			errs.Add(k, IsInRange(v, min, max)...)
+		} else {
+			panic(errRuleFormat(rule, nil))
 		}
 	}
 }
