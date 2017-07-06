@@ -81,7 +81,7 @@ func IsMax(v string, max float64) []error {
 // IsMaxLen check if v length is below or equals max.
 func IsMaxLen(v string, max int) []error {
 	if len(v) > max {
-		return []error{fmt.Errorf("%v:%v", ErrMaxLength, max)}
+		return []error{fmt.Errorf("%v:%v", ErrMaxLen, max)}
 	}
 	return nil
 }
@@ -101,7 +101,7 @@ func IsMin(v string, min float64) []error {
 // IsMinLen check if v length is over or equals min.
 func IsMinLen(v string, min int) []error {
 	if len(v) < min {
-		return []error{fmt.Errorf("%v:%v", ErrMinLength, min)}
+		return []error{fmt.Errorf("%v:%v", ErrMinLen, min)}
 	}
 	return nil
 }
