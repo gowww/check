@@ -16,7 +16,9 @@ const (
 	RuleLatitude  = "latitude"
 	RuleLongitude = "longitude"
 	RuleMax       = "max"
+	RuleMaxLen    = "maxlen"
 	RuleMin       = "min"
+	RuleMinLen    = "minlen"
 	RuleNumber    = "number"
 	RulePhone     = "phone"
 	RuleRange     = "range"
@@ -24,7 +26,10 @@ const (
 )
 
 func errRuleFormat(rule string, args []string) error {
-	return fmt.Errorf("check: cannot parse rule %q", rule+":"+strings.Join(args, ":"))
+	if len(args) > 0 {
+		rule += ":" + strings.Join(args, ":")
+	}
+	return fmt.Errorf("check: cannot parse rule %q", rule)
 }
 
 // A Checker contains keys with their checking rules.
@@ -94,8 +99,12 @@ func ruleCheck(errs Errors, rule, k, v string) {
 		args := ruleParts[1:]
 		if rule == RuleMax {
 			errs.Add(k, IsMax(v, parseRuleFloat64(rule, args))...)
+		} else if rule == RuleMaxLen {
+			errs.Add(k, IsMaxLen(v, parseRuleInt(rule, args))...)
 		} else if rule == RuleMin {
 			errs.Add(k, IsMin(v, parseRuleFloat64(rule, args))...)
+		} else if rule == RuleMinLen {
+			errs.Add(k, IsMinLen(v, parseRuleInt(rule, args))...)
 		} else if rule == RuleRange {
 			min, max := parseRuleFloat64Float64(rule, args)
 			errs.Add(k, IsInRange(v, min, max)...)
@@ -127,4 +136,15 @@ func parseRuleFloat64Float64(rule string, args []string) (float64, float64) {
 		panic(errRuleFormat(rule, args))
 	}
 	return f1, f2
+}
+
+func parseRuleInt(rule string, args []string) int {
+	if len(args) != 1 {
+		panic(errRuleFormat(rule, args))
+	}
+	i, err := strconv.Atoi(args[0])
+	if err != nil {
+		panic(errRuleFormat(rule, args))
+	}
+	return i
 }
