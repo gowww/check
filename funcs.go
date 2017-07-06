@@ -11,6 +11,16 @@ var (
 	rePhone = regexp.MustCompile(`^\+?(\d|\(|\)|\.|\s){9,20}$`)
 )
 
+// IsAlpha checks if v contains alpha characters only.
+func IsAlpha(v string) []error {
+	for i := 0; i < len(v); i++ {
+		if v[i] < 65 || v[i] > 90 && v[i] < 97 || v[i] > 122 {
+			return []error{ErrNotAlpha}
+		}
+	}
+	return nil
+}
+
 // IsEmail checks if v represents an email.
 func IsEmail(v string) []error {
 	if reEmail.MatchString(v) {
@@ -68,6 +78,14 @@ func IsMax(v string, max float64) []error {
 	return nil
 }
 
+// IsMaxLen check if v length is below or equals max.
+func IsMaxLen(v string, max int) []error {
+	if len(v) > max {
+		return []error{fmt.Errorf("%v:%v", ErrMaxLength, max)}
+	}
+	return nil
+}
+
 // IsMin check if v is over or equals min.
 func IsMin(v string, min float64) []error {
 	f, err := strconv.ParseFloat(v, 64)
@@ -76,6 +94,14 @@ func IsMin(v string, min float64) []error {
 	}
 	if f < min {
 		return []error{fmt.Errorf("%v:%v", ErrMin, min)}
+	}
+	return nil
+}
+
+// IsMinLen check if v length is over or equals min.
+func IsMinLen(v string, min int) []error {
+	if len(v) < min {
+		return []error{fmt.Errorf("%v:%v", ErrMinLength, min)}
 	}
 	return nil
 }
