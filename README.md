@@ -66,7 +66,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides form validati
 ### Rules
 
 Function    | Description                         | Usage        | Possible errors
-------------|-------------------------------------|--------------| -----------------------------
+------------|-------------------------------------|--------------|------------------------------
 `alpha`     | Contains alpha characters only.     | `alpha`      | `notAlpha`
 `email`     | Represents an email.                | `email`      | `notEmail`
 `integer`   | Represents an integer.              | `integer`    | `notInteger`
@@ -78,5 +78,5 @@ Function    | Description                         | Usage        | Possible erro
 `minlen`    | Length is over or equals min.       | `minlen:1`   | `minLen:1`, `notNumber`
 `number`    | Represents a number.                | `number`     | `notNumber`
 `phone`     | Represents a phone number.          | `phone`      | `notPhone`
-`range`     | Represents a number inside a range. | `range:1,10` | `max:1`, `min:1`, `notNumber`
+`range`     | Represents a number inside a range. | `range:1:10` | `max:1`, `min:1`, `notNumber`
 `required`  | Value is not empry.                 | `required`   | `required`
