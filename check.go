@@ -13,14 +13,14 @@ func (c Checker) Check(data map[string][]string) Errors {
 		if vv, ok := data[k]; ok {
 			for _, v := range vv {
 				for _, rule := range rules {
-					errs.Add(k, rule(v)...)
+					errs.Add(k, rule(v, data)...)
 				}
 			}
 			continue
 		}
 		// No data for key: see if it's required by checker.
 		for _, rule := range rules {
-			errs.Add(k, rule("")...)
+			errs.Add(k, rule("", data)...)
 		}
 		if kerrs := errs[k]; len(kerrs) == 1 && kerrs[0] == ErrRequired {
 			continue

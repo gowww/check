@@ -13,11 +13,12 @@ var (
 )
 
 // A Rule is a checking function to use inside a Checker.
-// It returns errors identifiers or nil if check pass.
-type Rule func(string) []string
+// It receives a value to check and the whole data map for relative checks.
+// It returns error identifiers or nil if check pass.
+type Rule func(string, map[string][]string) []string
 
 // Alpha rule checks if v contains alpha characters only.
-func Alpha(v string) []string {
+func Alpha(v string, _ map[string][]string) []string {
 	for i := 0; i < len(v); i++ {
 		if v[i] < 65 || v[i] > 90 && v[i] < 97 || v[i] > 122 {
 			return []string{ErrNotAlpha}
@@ -27,7 +28,7 @@ func Alpha(v string) []string {
 }
 
 // Email rule checks if v represents an email.
-func Email(v string) []string {
+func Email(v string, _ map[string][]string) []string {
 	if !reEmail.MatchString(v) {
 		return []string{ErrNotEmail}
 	}
@@ -35,7 +36,7 @@ func Email(v string) []string {
 }
 
 // Integer rule checks if v represents an integer.
-func Integer(v string) []string {
+func Integer(v string, _ map[string][]string) []string {
 	if v == "." {
 		return []string{ErrNotInteger}
 	}
@@ -46,7 +47,7 @@ func Integer(v string) []string {
 }
 
 // Latitude rule checks if v represents a latitude.
-func Latitude(v string) []string {
+func Latitude(v string, _ map[string][]string) []string {
 	f, err := strconv.ParseFloat(v, 64)
 	if err != nil {
 		return []string{ErrNotNumber}
@@ -58,7 +59,7 @@ func Latitude(v string) []string {
 }
 
 // Longitude rule checks if v represents a longitude.
-func Longitude(v string) []string {
+func Longitude(v string, _ map[string][]string) []string {
 	f, err := strconv.ParseFloat(v, 64)
 	if err != nil {
 		return []string{ErrNotNumber}
@@ -71,7 +72,7 @@ func Longitude(v string) []string {
 
 // Max rule checks if v is below or equals max.
 func Max(max float64) Rule {
-	return func(v string) []string {
+	return func(v string, _ map[string][]string) []string {
 		f, err := strconv.ParseFloat(v, 64)
 		if err != nil {
 			return []string{ErrNotNumber}
@@ -85,7 +86,7 @@ func Max(max float64) Rule {
 
 // MaxLen rule checks if v length is below or equals max.
 func MaxLen(max int) Rule {
-	return func(v string) []string {
+	return func(v string, _ map[string][]string) []string {
 		if len(v) > max {
 			return []string{fmt.Sprintf("%s:%d", ErrMaxLen, max)}
 		}
@@ -95,7 +96,7 @@ func MaxLen(max int) Rule {
 
 // Min rule checks if v is over or equals min.
 func Min(min float64) Rule {
-	return func(v string) []string {
+	return func(v string, _ map[string][]string) []string {
 		f, err := strconv.ParseFloat(v, 64)
 		if err != nil {
 			return []string{ErrNotNumber}
@@ -109,7 +110,7 @@ func Min(min float64) Rule {
 
 // MinLen rule checks if v length is over or equals min.
 func MinLen(min int) Rule {
-	return func(v string) []string {
+	return func(v string, _ map[string][]string) []string {
 		if len(v) < min {
 			return []string{fmt.Sprintf("%s:%d", ErrMinLen, min)}
 		}
@@ -118,7 +119,7 @@ func MinLen(min int) Rule {
 }
 
 // Number rule checks if v represents a number.
-func Number(v string) []string {
+func Number(v string, _ map[string][]string) []string {
 	_, err := strconv.ParseFloat(v, 64)
 	if err != nil {
 		return []string{ErrNotNumber}
@@ -127,7 +128,7 @@ func Number(v string) []string {
 }
 
 // Phone rule checks if v represents a phone number.
-func Phone(v string) []string {
+func Phone(v string, _ map[string][]string) []string {
 	if !rePhone.MatchString(v) {
 		return []string{ErrNotPhone}
 	}
@@ -136,31 +137,47 @@ func Phone(v string) []string {
 
 // Range rule checks if v represents a number inside a range.
 func Range(min, max float64) Rule {
-	return func(v string) []string {
-		if errs := Max(max)(v); errs != nil {
+	return func(v string, _ map[string][]string) []string {
+		if errs := Max(max)(v, nil); errs != nil {
 			return errs
 		}
-		return Min(min)(v)
+		return Min(min)(v, nil)
 	}
 }
 
 // RangeLen rule checks if v length is between or equal min and max.
 func RangeLen(min, max int) Rule {
-	return func(v string) []string {
-		if errs := MinLen(min)(v); errs != nil {
+	return func(v string, _ map[string][]string) []string {
+		if errs := MinLen(min)(v, nil); errs != nil {
 			return errs
 		}
-		return MaxLen(max)(v)
+		return MaxLen(max)(v, nil)
 	}
 }
 
 // Required rule checks that v is not empty.
 // v is not trimmed so a single space can pass the check.
-func Required(v string) []string {
+func Required(v string, _ map[string][]string) []string {
 	if v == "" {
 		return []string{ErrRequired}
 	}
 	return nil
+}
+
+// Same rule checks that v is the same as another key value.
+func Same(key string) Rule {
+	return func(v string, data map[string][]string) []string {
+		vv := data[key]
+		if len(vv) == 0 {
+			return []string{ErrNotSame + ":" + key}
+		}
+		for _, v2 := range vv {
+			if v == v2 {
+				return nil
+			}
+		}
+		return []string{ErrNotSame + ":" + key}
+	}
 }
 
 // Unique rule checks if v is unique in database.
@@ -169,7 +186,7 @@ func Unique(db *sql.DB, table, column, placeholder string) Rule {
 	if db == nil {
 		panic(`check: no database provided for "unique" rule`)
 	}
-	return func(v string) []string {
+	return func(v string, _ map[string][]string) []string {
 		var n int
 		if err := db.QueryRow("SELECT COUNT() FROM "+table+" WHERE "+column+" = "+placeholder, v).Scan(&n); err != nil {
 			panic(err)
