@@ -7,7 +7,7 @@ import (
 )
 
 func Example() {
-	checker := &check.Checker{
+	checker := check.Checker{
 		"email": {check.Required, check.Email},
 		"phone": {check.Phone},
 		"stars": {check.Required, check.Range(3, 5)},

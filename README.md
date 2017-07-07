@@ -21,7 +21,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides form validati
 1. Make a [Checker](https://godoc.org/github.com/gowww/check#Checker) with [rules](#rules) for keys:
 
 	```Go
-	checker := &check.Checker{
+	checker := check.Checker{
 		"email": {check.Required, check.Email},
 		"phone": {check.Phone},
 		"stars": {check.Required, check.Range(3, 5)},
