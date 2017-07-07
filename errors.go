@@ -48,7 +48,7 @@ func (e Errors) Add(key string, err string) {
 
 // Empty tells if the errors map is empty.
 func (e Errors) Empty() bool {
-	return len(e) > 0
+	return len(e) == 0
 }
 
 // NotEmpty tells if the errors map contains keys.

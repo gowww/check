@@ -1,6 +1,7 @@
 package check
 
 import (
+	"net/http"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -8,29 +9,37 @@ import (
 )
 
 var (
-	testAlpha = "PeWGHxQBZfiMVQNbWGzkegklTRMHVmuO"
-	testInt   = "-19001231"
-	testFloat = "-19001231.558877"
-)
-
-func TestCheckerCheck(t *testing.T) {
-	chk := &Checker{
+	testAlpha   = "PeWGHxQBZfiMVQNbWGzkegklTRMHVmuO"
+	testInt     = "-19001231"
+	testFloat   = "-19001231.558877"
+	testChecker = &Checker{
 		"email": {Required, Email},
 		"city":  {Alpha},
 		"phone": {Phone},
 		"stars": {Required, Range(3, 5)},
 	}
-	got := chk.Check(map[string][]string{
+	testCheckerData = map[string][]string{
 		"name":  {"foobar"},
 		"phone": {"0012345678901"},
 		"stars": {"2"},
-	})
-	want := Errors{
+	}
+	testCheckerWant = Errors{
 		"email": {ErrRequired},
 		"stars": {ErrMin + ":3"},
 	}
-	if !reflect.DeepEqual(want, got) {
-		t.Errorf("Checker.Check:\nwant %v\ngot  %v", want, got)
+)
+
+func TestCheckerCheck(t *testing.T) {
+	got := testChecker.Check(testCheckerData)
+	if !reflect.DeepEqual(testCheckerWant, got) {
+		t.Errorf("Checker.Check:\nwant %v\ngot  %v", testCheckerWant, got)
+	}
+}
+
+func TestCheckerCheckRequest(t *testing.T) {
+	got := testChecker.CheckRequest(&http.Request{Form: testCheckerData})
+	if !reflect.DeepEqual(testCheckerWant, got) {
+		t.Errorf("Checker.Check:\nwant %v\ngot  %v", testCheckerWant, got)
 	}
 }
 
