@@ -21,10 +21,10 @@ Package [check](https://godoc.org/github.com/gowww/check) provides form validati
 1. Make a [Checker](https://godoc.org/github.com/gowww/check#Checker) with [rules](#rules) (separated by comma) for keys:
 
 	```Go
-	checker := check.Checker{
-		"email": "required,email",
-		"phone": "phone",
-		"stars": "required,min:3",
+	checker := &check.Checker{
+		"email": {check.Required, check.Email},
+		"phone": {check.Phone},
+		"stars": {check.Required, check.Range(3, 5)},
 	}
 	```
 
@@ -65,18 +65,20 @@ Package [check](https://godoc.org/github.com/gowww/check) provides form validati
 
 ### Rules
 
-Function    | Description                         | Usage        | Possible errors
-------------|-------------------------------------|--------------|------------------------------
-`alpha`     | Contains alpha characters only.     | `alpha`      | `notAlpha`
-`email`     | Represents an email.                | `email`      | `notEmail`
-`integer`   | Represents an integer.              | `integer`    | `notInteger`
-`latitude`  | Represents a latitude.              | `latitude`   | `notLatitude`, `notNumber`
-`longitude` | Represents a longitude.             | `longitude`  | `notLongitude`, `notNumber`
-`max`       | Is below or equals max.             | `max:1`      | `max:1`, `notNumber`
-`maxlen`    | Length is below or equals max.      | `maxlen:1`   | `maxLen:1`, `notNumber`
-`min`       | Is over or equals min.              | `min:1`      | `min:1`, `notNumber`
-`minlen`    | Length is over or equals min.       | `minlen:1`   | `minLen:1`, `notNumber`
-`number`    | Represents a number.                | `number`     | `notNumber`
-`phone`     | Represents a phone number.          | `phone`      | `notPhone`
-`range`     | Represents a number inside a range. | `range:1:10` | `max:1`, `min:1`, `notNumber`
-`required`  | Value is not empry.                 | `required`   | `required`
+Function                                                        | Usage                               | Possible errors
+----------------------------------------------------------------|-------------------------------------|------------------------------
+[Alpha](https://godoc.org/github.com/gowww/check#Alpha)         | `Alpha`                             | `notAlpha`
+[Email](https://godoc.org/github.com/gowww/check#Email)         | `Email`                             | `notEmail`
+[Integer](https://godoc.org/github.com/gowww/check#Integer)     | `Integer`                           | `notInteger`
+[Latitude](https://godoc.org/github.com/gowww/check#Latitude)   | `Latitude`                          | `notLatitude`, `notNumber`
+[Longitude](https://godoc.org/github.com/gowww/check#Longitude) | `Longitude`                         | `notLongitude`, `notNumber`
+[Max](https://godoc.org/github.com/gowww/check#Max)             | `Max(1)`                            | `max:1`, `notNumber`
+[MaxLen](https://godoc.org/github.com/gowww/check#MaxLen)       | `MaxLen(1)`                         | `maxLen:1`, `notNumber`
+[Min](https://godoc.org/github.com/gowww/check#Min)             | `Min(1)`                            | `min:1`, `notNumber`
+[MinLen](https://godoc.org/github.com/gowww/check#MinLen)       | `MinLen(1)`                         | `minLen:1`, `notNumber`
+[Number](https://godoc.org/github.com/gowww/check#Number)       | `Number`                            | `notNumber`
+[Phone](https://godoc.org/github.com/gowww/check#Phone)         | `Phone`                             | `notPhone`
+[Range](https://godoc.org/github.com/gowww/check#Range)         | `Range(1, 10)`                      | `max:1`, `min:1`, `notNumber`
+[RangeLen](https://godoc.org/github.com/gowww/check#RangeLen)   | `RangeLen(1, 10)`                   | `max:1`, `min:1`, `notNumber`
+[Required](https://godoc.org/github.com/gowww/check#Required)   | `Required`                          | `required`
+[Unique](https://godoc.org/github.com/gowww/check#Unique)       | `Unique(db, "users", "email", "?")` | `notUnique`
