@@ -4,25 +4,7 @@ package check
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
-)
-
-// Checking rules.
-const (
-	RuleAlpha     = "alpha"
-	RuleEmail     = "email"
-	RuleInteger   = "integer"
-	RuleLatitude  = "latitude"
-	RuleLongitude = "longitude"
-	RuleMax       = "max"
-	RuleMaxLen    = "maxlen"
-	RuleMin       = "min"
-	RuleMinLen    = "minlen"
-	RuleNumber    = "number"
-	RulePhone     = "phone"
-	RuleRange     = "range"
-	RuleRequired  = "required"
 )
 
 func errRuleFormat(rule string, args []string) error {
@@ -32,30 +14,32 @@ func errRuleFormat(rule string, args []string) error {
 	return fmt.Errorf("check: cannot parse rule %q", rule)
 }
 
+// Rules in a map of checking rules for keys.
+// type Rules map[string][]Rule
+
 // A Checker contains keys with their checking rules.
-type Checker map[string]string
+type Checker map[string][]Rule
 
 // Check makes the check for data (key to multiple values) and returns errors.
 func (c Checker) Check(data map[string][]string) Errors {
 	errs := make(Errors)
-	for k, srules := range c {
-		rules := strings.Split(srules, ",")
-		values, ok := data[k]
-		if !ok {
-			// Check rules contains require.
-			for _, rule := range rules {
-				if rule == "required" {
-					errs.Add(k, ErrRequired)
-					break
+	for k, rules := range c {
+		if vv, ok := data[k]; ok {
+			for _, v := range vv {
+				for _, rule := range rules {
+					rule(errs, k, v)
 				}
 			}
 			continue
 		}
-		for _, v := range values {
-			for _, rule := range rules {
-				ruleCheck(errs, rule, k, v)
-			}
+		// No data for key: see if it's required by checker.
+		for _, rule := range rules {
+			rule(errs, k, "")
 		}
+		if kerrs := errs[k]; len(kerrs) == 1 && kerrs[0] == ErrRequired {
+			continue
+		}
+		delete(errs, k) // Checks has been made for key and no "required" error at the end: remove other potential errors.
 	}
 	return errs
 }
@@ -69,84 +53,4 @@ func (c Checker) CheckRequest(r *http.Request) Errors {
 		r.ParseMultipartForm(32 << 20) // 32 MB
 	}
 	return c.Check(r.Form)
-}
-
-func ruleCheck(errs Errors, rule, k, v string) {
-	if rule == RuleRequired {
-		if v == "" {
-			errs.Add(k, ErrRequired)
-		}
-	} else if rule == RuleAlpha {
-		errs.Add(k, IsAlpha(v)...)
-	} else if rule == RuleEmail {
-		errs.Add(k, IsEmail(v)...)
-	} else if rule == RuleInteger {
-		errs.Add(k, IsInteger(v)...)
-	} else if rule == RuleLatitude {
-		errs.Add(k, IsLatitude(v)...)
-	} else if rule == RuleLongitude {
-		errs.Add(k, IsLongitude(v)...)
-	} else if rule == RuleNumber {
-		errs.Add(k, IsNumber(v)...)
-	} else if rule == RulePhone {
-		errs.Add(k, IsPhone(v)...)
-	} else { // Rules with arguments.
-		ruleParts := strings.Split(rule, ":")
-		if len(ruleParts) < 2 {
-			panic(errRuleFormat(rule, nil))
-		}
-		rule = ruleParts[0]
-		args := ruleParts[1:]
-		if rule == RuleMax {
-			errs.Add(k, IsMax(v, parseRuleFloat64(rule, args))...)
-		} else if rule == RuleMaxLen {
-			errs.Add(k, IsMaxLen(v, parseRuleInt(rule, args))...)
-		} else if rule == RuleMin {
-			errs.Add(k, IsMin(v, parseRuleFloat64(rule, args))...)
-		} else if rule == RuleMinLen {
-			errs.Add(k, IsMinLen(v, parseRuleInt(rule, args))...)
-		} else if rule == RuleRange {
-			min, max := parseRuleFloat64Float64(rule, args)
-			errs.Add(k, IsInRange(v, min, max)...)
-		} else {
-			panic(errRuleFormat(rule, nil))
-		}
-	}
-}
-
-func parseRuleFloat64(rule string, args []string) float64 {
-	if len(args) != 1 {
-		panic(errRuleFormat(rule, args))
-	}
-	f, err := strconv.ParseFloat(args[0], 64)
-	if err != nil {
-		panic(errRuleFormat(rule, args))
-	}
-	return f
-}
-
-func parseRuleFloat64Float64(rule string, args []string) (float64, float64) {
-	if len(args) != 2 {
-		panic(errRuleFormat(rule, args))
-	}
-	f1, err := strconv.ParseFloat(args[0], 64)
-	if err != nil {
-		panic(errRuleFormat(rule, args))
-	}
-	f2, err := strconv.ParseFloat(args[1], 64)
-	if err != nil {
-		panic(errRuleFormat(rule, args))
-	}
-	return f1, f2
-}
-
-func parseRuleInt(rule string, args []string) int {
-	if len(args) != 1 {
-		panic(errRuleFormat(rule, args))
-	}
-	i, err := strconv.Atoi(args[0])
-	if err != nil {
-		panic(errRuleFormat(rule, args))
-	}
-	return i
 }

@@ -7,10 +7,10 @@ import (
 )
 
 func Example() {
-	checker := check.Checker{
-		"email": "required,email",
-		"phone": "phone",
-		"stars": "required,min:3",
+	checker := &check.Checker{
+		"email": {check.Required, check.Email},
+		"phone": {check.Phone},
+		"stars": {check.Required, check.Range(3, 5)},
 	}
 
 	errs := checker.Check(map[string][]string{

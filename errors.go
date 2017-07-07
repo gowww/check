@@ -27,24 +27,22 @@ const (
 type Errors map[string][]string
 
 // Add appends a failed validation Error to key.
-func (e Errors) Add(key string, errs ...string) {
-	for _, err := range errs {
-		if err == ErrRequired { // ErrRequired is always lonely.
-			e[key] = []string{ErrRequired}
-			return
-		}
-		if errs := e[key]; len(errs) > 0 {
-			for _, r := range errs {
-				if r == err || r == ErrRequired { // No duplicated errors and no other errors when ErrRequired exists.
-					return
-				}
+func (e Errors) Add(key string, err string) {
+	if err == ErrRequired { // ErrRequired is always lonely.
+		e[key] = []string{ErrRequired}
+		return
+	}
+	if errs := e[key]; len(errs) > 0 {
+		for _, r := range errs {
+			if r == err || r == ErrRequired { // No duplicated errors and no other errors when ErrRequired exists.
+				return
 			}
 		}
-		if e[key] == nil {
-			e[key] = []string{err}
-		} else {
-			e[key] = append(e[key], err)
-		}
+	}
+	if e[key] == nil {
+		e[key] = []string{err}
+	} else {
+		e[key] = append(e[key], err)
 	}
 }
 
@@ -64,8 +62,9 @@ func (e Errors) Has(key string) bool {
 	return ok
 }
 
-// Get returns the first error of key.
-func (e Errors) Get(key string) (err string) {
+// First returns the first error for key.
+// If the key doesn't exist, an empty string is returned.
+func (e Errors) First(key string) (err string) {
 	v := e[key]
 	if len(v) == 0 {
 		return ""
