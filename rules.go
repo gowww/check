@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -165,18 +166,22 @@ func Required(v string, _ map[string][]string) []string {
 }
 
 // Same rule checks that v is the same as another key value.
-func Same(key string) Rule {
+func Same(keys ...string) Rule {
 	return func(v string, data map[string][]string) []string {
-		vv := data[key]
-		if len(vv) == 0 {
-			return []string{ErrNotSame + ":" + key}
-		}
-		for _, v2 := range vv {
-			if v == v2 {
-				return nil
+	KeysLoop:
+		for _, key := range keys {
+			vv := data[key]
+			if len(vv) == 0 {
+				return []string{ErrNotSame + ":" + strings.Join(keys, ",")}
 			}
+			for _, v2 := range vv {
+				if v == v2 {
+					continue KeysLoop
+				}
+			}
+			return []string{ErrNotSame + ":" + strings.Join(keys, ",")}
 		}
-		return []string{ErrNotSame + ":" + key}
+		return nil
 	}
 }
 

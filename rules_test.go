@@ -171,9 +171,10 @@ func TestRangeLen(t *testing.T) {
 
 func TestSame(t *testing.T) {
 	testRule(t, "Range", ruleCases{
-		{"v", map[string][]string{"k": {"v"}}, Same("k"), nil},
+		{"v", map[string][]string{"k": {"v"}, "l": {"v"}}, Same("k", "l"), nil},
 		{"v", map[string][]string{"k": {"v"}}, Same("x"), []string{ErrNotSame + ":x"}},
 		{"x", map[string][]string{"k": {"v"}}, Same("k"), []string{ErrNotSame + ":k"}},
+		{"v", map[string][]string{"k": {"v"}, "l": {"x"}}, Same("k", "l"), []string{ErrNotSame + ":k,l"}},
 		{"v", nil, Same("k"), []string{ErrNotSame + ":k"}},
 	})
 }
