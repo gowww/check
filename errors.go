@@ -19,6 +19,7 @@ const (
 	ErrNotLongitude = "notLongitude"
 	ErrNotNumber    = "notNumber"
 	ErrNotPhone     = "notPhone"
+	ErrNotSame      = "notSame"
 	ErrNotUnique    = "notUnique"
 	ErrRequired     = "required"
 )
