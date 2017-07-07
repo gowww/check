@@ -34,6 +34,10 @@ func Email(errs Errors, k, v string) {
 
 // Integer checks if v represents an integer.
 func Integer(errs Errors, k, v string) {
+	if v == "." {
+		errs.Add(k, ErrNotInteger)
+		return
+	}
 	if _, err := strconv.Atoi(v); err != nil {
 		errs.Add(k, ErrNotInteger)
 	}

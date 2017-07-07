@@ -1,6 +1,7 @@
 package check
 
 import (
+	"reflect"
 	"regexp"
 	"strconv"
 	"testing"
@@ -12,19 +13,26 @@ var (
 	testFloat = "-19001231.558877"
 )
 
-// func TestCheckerCheck(t *testing.T) {
-// 	chk := &Checker{
-// 		"email": {Required, Email},
-// 		"phone": {Phone},
-// 		"stars": {Required, Range(3, 5)},
-// 	}
-// 	errs := chk.Check(map[string][]string{
-// 		"name":  {"foobar"},
-// 		"phone": {"0012345678901"},
-// 		"stars": {"2"},
-// 	})
-// 	fmt.Println(errs)
-// }
+func TestCheckerCheck(t *testing.T) {
+	chk := &Checker{
+		"email": {Required, Email},
+		"city":  {Alpha},
+		"phone": {Phone},
+		"stars": {Required, Range(3, 5)},
+	}
+	got := chk.Check(map[string][]string{
+		"name":  {"foobar"},
+		"phone": {"0012345678901"},
+		"stars": {"2"},
+	})
+	want := Errors{
+		"email": {ErrRequired},
+		"stars": {ErrMin + ":3"},
+	}
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("Checker.Check:\nwant %v\ngot  %v", want, got)
+	}
+}
 
 func BenchmarkAlphaRegexp(b *testing.B) {
 	reInt := regexp.MustCompile("^[a-zA-Z]+$")

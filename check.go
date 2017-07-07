@@ -1,18 +1,7 @@
 // Package check provides form validation utilities.
 package check
 
-import (
-	"fmt"
-	"net/http"
-	"strings"
-)
-
-func errRuleFormat(rule string, args []string) error {
-	if len(args) > 0 {
-		rule += ":" + strings.Join(args, ":")
-	}
-	return fmt.Errorf("check: cannot parse rule %q", rule)
-}
+import "net/http"
 
 // Rules in a map of checking rules for keys.
 // type Rules map[string][]Rule
