@@ -12,7 +12,6 @@ func TestEmail(t *testing.T) {
 	}{
 		{"a@example.com", nil},
 		{"a+a@example.com", nil},
-		{"a@a.a", nil},
 		{"a@a.a", []string{ErrNotEmail}},
 		{"a+a@a.a", []string{ErrNotEmail}},
 		{"@a.a", []string{ErrNotEmail}},
