@@ -66,7 +66,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides form validati
 ### Rules
 
 Function                                                        | Usage                               | Possible errors
-----------------------------------------------------------------|-------------------------------------|------------------------------
+----------------------------------------------------------------|-------------------------------------|------------------------------------
 [Alpha](https://godoc.org/github.com/gowww/check#Alpha)         | `Alpha`                             | `notAlpha`
 [Email](https://godoc.org/github.com/gowww/check#Email)         | `Email`                             | `notEmail`
 [Integer](https://godoc.org/github.com/gowww/check#Integer)     | `Integer`                           | `notInteger`
@@ -78,7 +78,7 @@ Function                                                        | Usage         
 [MinLen](https://godoc.org/github.com/gowww/check#MinLen)       | `MinLen(1)`                         | `minLen:1`, `notNumber`
 [Number](https://godoc.org/github.com/gowww/check#Number)       | `Number`                            | `notNumber`
 [Phone](https://godoc.org/github.com/gowww/check#Phone)         | `Phone`                             | `notPhone`
-[Range](https://godoc.org/github.com/gowww/check#Range)         | `Range(1, 10)`                      | `max:1`, `min:1`, `notNumber`
-[RangeLen](https://godoc.org/github.com/gowww/check#RangeLen)   | `RangeLen(1, 10)`                   | `max:1`, `min:1`, `notNumber`
+[Range](https://godoc.org/github.com/gowww/check#Range)         | `Range(1, 5)`                       | `max:5`, `min:1`, `notNumber`
+[RangeLen](https://godoc.org/github.com/gowww/check#RangeLen)   | `RangeLen(1, 5)`                    | `maxLen:5`, `minLen:1`, `notNumber`
 [Required](https://godoc.org/github.com/gowww/check#Required)   | `Required`                          | `required`
 [Unique](https://godoc.org/github.com/gowww/check#Unique)       | `Unique(db, "users", "email", "?")` | `notUnique`
