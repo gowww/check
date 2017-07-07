@@ -29,14 +29,6 @@ var (
 	}
 )
 
-func TestCheck(t *testing.T) {
-	want := []string{ErrNotEmail, ErrMinLen + ":5"}
-	got := Check("a@a", Email, MinLen(5))
-	if !reflect.DeepEqual(want, got) {
-		t.Errorf("Check:\nwant %v\ngot  %v", want, got)
-	}
-}
-
 func TestCheckerCheck(t *testing.T) {
 	got := testChecker.Check(testCheckerData)
 	if !reflect.DeepEqual(testCheckerWant, got) {

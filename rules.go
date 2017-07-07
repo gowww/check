@@ -13,158 +13,170 @@ var (
 )
 
 // A Rule is a checking function to use inside a Checker.
-type Rule func(Errors, string, string)
+// It returns errors identifiers or nil if check pass.
+type Rule func(string) []string
 
-// Alpha checks if v contains alpha characters only.
-func Alpha(errs Errors, k, v string) {
+// Alpha rule checks if v contains alpha characters only.
+func Alpha(v string) []string {
 	for i := 0; i < len(v); i++ {
 		if v[i] < 65 || v[i] > 90 && v[i] < 97 || v[i] > 122 {
-			errs.Add(k, ErrNotAlpha)
-			return
+			return []string{ErrNotAlpha}
 		}
 	}
+	return nil
 }
 
-// Email checks if v represents an email.
-func Email(errs Errors, k, v string) {
+// Email rule checks if v represents an email.
+func Email(v string) []string {
 	if !reEmail.MatchString(v) {
-		errs.Add(k, ErrNotEmail)
+		return []string{ErrNotEmail}
 	}
+	return nil
 }
 
-// Integer checks if v represents an integer.
-func Integer(errs Errors, k, v string) {
+// Integer rule checks if v represents an integer.
+func Integer(v string) []string {
 	if v == "." {
-		errs.Add(k, ErrNotInteger)
-		return
+		return []string{ErrNotInteger}
 	}
 	if _, err := strconv.Atoi(v); err != nil {
-		errs.Add(k, ErrNotInteger)
+		return []string{ErrNotInteger}
 	}
+	return nil
 }
 
-// Latitude checks if v represents a latitude.
-func Latitude(errs Errors, k, v string) {
+// Latitude rule checks if v represents a latitude.
+func Latitude(v string) []string {
 	f, err := strconv.ParseFloat(v, 64)
 	if err != nil {
-		errs.Add(k, ErrNotNumber)
-		return
+		return []string{ErrNotNumber}
 	}
 	if f < -90 || f > 90 {
-		errs.Add(k, ErrNotLatitude)
+		return []string{ErrNotLatitude}
 	}
+	return nil
 }
 
-// Longitude checks if v represents a longitude.
-func Longitude(errs Errors, k, v string) {
+// Longitude rule checks if v represents a longitude.
+func Longitude(v string) []string {
 	f, err := strconv.ParseFloat(v, 64)
 	if err != nil {
-		errs.Add(k, ErrNotNumber)
-		return
+		return []string{ErrNotNumber}
 	}
 	if f < -180 || f > 180 {
-		errs.Add(k, ErrNotLongitude)
+		return []string{ErrNotLongitude}
 	}
+	return nil
 }
 
-// Max checks if v is below or equals max.
+// Max rule checks if v is below or equals max.
 func Max(max float64) Rule {
-	return func(errs Errors, k string, v string) {
+	return func(v string) []string {
 		f, err := strconv.ParseFloat(v, 64)
 		if err != nil {
-			errs.Add(k, ErrNotNumber)
-			return
+			return []string{ErrNotNumber}
 		}
 		if f > max {
-			errs.Add(k, fmt.Sprintf("%s:%g", ErrMax, max))
+			return []string{fmt.Sprintf("%s:%g", ErrMax, max)}
 		}
+		return nil
 	}
 }
 
-// MaxLen checks if v length is below or equals max.
+// MaxLen rule checks if v length is below or equals max.
 func MaxLen(max int) Rule {
-	return func(errs Errors, k string, v string) {
+	return func(v string) []string {
 		if len(v) > max {
-			errs.Add(k, fmt.Sprintf("%s:%d", ErrMaxLen, max))
+			return []string{fmt.Sprintf("%s:%d", ErrMaxLen, max)}
 		}
+		return nil
 	}
 }
 
-// Min checks if v is over or equals min.
+// Min rule checks if v is over or equals min.
 func Min(min float64) Rule {
-	return func(errs Errors, k string, v string) {
+	return func(v string) []string {
 		f, err := strconv.ParseFloat(v, 64)
 		if err != nil {
-			errs.Add(k, ErrNotNumber)
-			return
+			return []string{ErrNotNumber}
 		}
 		if f < min {
-			errs.Add(k, fmt.Sprintf("%s:%g", ErrMin, min))
+			return []string{fmt.Sprintf("%s:%g", ErrMin, min)}
 		}
+		return nil
 	}
 }
 
-// MinLen checks if v length is over or equals min.
+// MinLen rule checks if v length is over or equals min.
 func MinLen(min int) Rule {
-	return func(errs Errors, k string, v string) {
+	return func(v string) []string {
 		if len(v) < min {
-			errs.Add(k, fmt.Sprintf("%s:%d", ErrMinLen, min))
+			return []string{fmt.Sprintf("%s:%d", ErrMinLen, min)}
 		}
+		return nil
 	}
 }
 
-// Number checks if v represents a number.
-func Number(errs Errors, k, v string) {
+// Number rule checks if v represents a number.
+func Number(v string) []string {
 	_, err := strconv.ParseFloat(v, 64)
 	if err != nil {
-		errs.Add(k, ErrNotNumber)
+		return []string{ErrNotNumber}
 	}
+	return nil
 }
 
-// Phone checks if v represents a phone number.
-func Phone(errs Errors, k, v string) {
+// Phone rule checks if v represents a phone number.
+func Phone(v string) []string {
 	if !rePhone.MatchString(v) {
-		errs.Add(k, ErrNotPhone)
+		return []string{ErrNotPhone}
 	}
+	return nil
 }
 
-// Range checks if v represents a number inside a range.
+// Range rule checks if v represents a number inside a range.
 func Range(min, max float64) Rule {
-	return func(errs Errors, k string, v string) {
-		Min(min)(errs, k, v)
-		Max(max)(errs, k, v)
+	return func(v string) []string {
+		if errs := Max(max)(v); errs != nil {
+			return errs
+		}
+		return Min(min)(v)
 	}
 }
 
-// RangeLen checks if v length is between or equal min and max.
+// RangeLen rule checks if v length is between or equal min and max.
 func RangeLen(min, max int) Rule {
-	return func(errs Errors, k string, v string) {
-		MinLen(min)(errs, k, v)
-		MaxLen(max)(errs, k, v)
+	return func(v string) []string {
+		if errs := MinLen(min)(v); errs != nil {
+			return errs
+		}
+		return MaxLen(max)(v)
 	}
 }
 
-// Required checks that v is not empty.
-// V is not trimmed so a space is a value.
-func Required(errs Errors, k, v string) {
+// Required rule checks that v is not empty.
+// v is not trimmed so a single space can pass the check.
+func Required(v string) []string {
 	if v == "" {
-		errs.Add(k, ErrRequired)
+		return []string{ErrRequired}
 	}
+	return nil
 }
 
-// Unique checks if v is unique in database.
-// The placeholder must be provided as it depends on the SQL driver.
+// Unique rule checks if v is unique in database.
+// The placeholder ("?", "$1" or other) must be provided as it depends on the SQL driver.
 func Unique(db *sql.DB, table, column, placeholder string) Rule {
 	if db == nil {
 		panic(`check: no database provided for "unique" rule`)
 	}
-	return func(errs Errors, k string, v string) {
+	return func(v string) []string {
 		var n int
 		if err := db.QueryRow("SELECT COUNT() FROM "+table+" WHERE "+column+" = "+placeholder, v).Scan(&n); err != nil {
 			panic(err)
 		}
 		if n > 0 {
-			errs.Add(k, ErrNotUnique)
+			return []string{ErrNotUnique}
 		}
+		return nil
 	}
 }

@@ -3,16 +3,6 @@ package check
 
 import "net/http"
 
-// Check checks v with rules and returns errors.
-// If no error encountered, result is nil,
-func Check(v string, rules ...Rule) []string {
-	errs := make(Errors)
-	for _, rule := range rules {
-		rule(errs, "", v)
-	}
-	return errs[""]
-}
-
 // A Checker contains keys with their checking rules.
 type Checker map[string][]Rule
 
@@ -23,14 +13,14 @@ func (c Checker) Check(data map[string][]string) Errors {
 		if vv, ok := data[k]; ok {
 			for _, v := range vv {
 				for _, rule := range rules {
-					rule(errs, k, v)
+					errs.Add(k, rule(v)...)
 				}
 			}
 			continue
 		}
 		// No data for key: see if it's required by checker.
 		for _, rule := range rules {
-			rule(errs, k, "")
+			errs.Add(k, rule("")...)
 		}
 		if kerrs := errs[k]; len(kerrs) == 1 && kerrs[0] == ErrRequired {
 			continue
