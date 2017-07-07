@@ -18,7 +18,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides form validati
 
 ## Usage
 
-1. Make a [Checker](https://godoc.org/github.com/gowww/check#Checker) with [rules](#rules) (separated by comma) for keys:
+1. Make a [Checker](https://godoc.org/github.com/gowww/check#Checker) with [rules](#rules) for keys:
 
 	```Go
 	checker := &check.Checker{
