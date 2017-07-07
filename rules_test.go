@@ -13,11 +13,9 @@ type ruleCases []struct {
 
 func testRule(t *testing.T, name string, cases ruleCases) {
 	for _, c := range cases {
-		errs := make(Errors)
-		c.rule(errs, "", c.v)
-		got := errs[""]
-		if !reflect.DeepEqual(c.want, got) {
-			t.Errorf("%s(%q): want %v, got %v", name, c.v, c.want, got)
+		errs := c.rule(c.v)
+		if !reflect.DeepEqual(c.want, errs) {
+			t.Errorf("%s(%q): want %v, got %v", name, c.v, c.want, errs)
 		}
 	}
 }
