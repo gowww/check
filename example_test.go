@@ -8,12 +8,13 @@ import (
 
 func Example() {
 	checker := check.Checker{
-		"email": {check.Required, check.Email},
-		"phone": {check.Phone},
-		"stars": {check.Required, check.Range(3, 5)},
+		"email":   {check.Required, check.Email},
+		"phone":   {check.Phone},
+		"picture": {check.MaxFileSize(5000)},
+		"stars":   {check.Required, check.Range(3, 5)},
 	}
 
-	errs := checker.Check(map[string][]string{
+	errs := checker.CheckValues(map[string][]string{
 		"name":  {"foobar"},
 		"phone": {"0012345678901"},
 		"stars": {"2"},
