@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"mime/multipart"
+	"net/url"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -393,6 +394,56 @@ func Unique(db *sql.DB, table, column, placeholder string) Rule {
 				errs.Add(key, ErrNotUnique)
 				return
 			}
+		}
+	}
+}
+
+// URL rule checks that value represents an URL.
+func URL(errs Errors, form *multipart.Form, key string) {
+	if form == nil && form.Value == nil {
+		return
+	}
+	for _, v := range form.Value[key] {
+		if len(v) < 4 {
+			errs.Add(key, ErrNotURL)
+			return
+		}
+		v = strings.Replace(v, "127.0.0.1", "localhost", 1)
+		if i := strings.IndexByte(v, '#'); i != -1 {
+			v = v[:i]
+		}
+		if !strings.Contains(v, "://") {
+			v = "http://" + v
+		}
+		u, err := url.ParseRequestURI(v)
+		if err != nil || u.Host == "" || u.Host[0] == '-' || strings.Contains(u.Host, ".-") || strings.Contains(u.Host, "-.") {
+			errs.Add(key, ErrNotURL)
+			return
+		}
+		parts := strings.Split(u.Host, ".")
+		if parts[0] == "" || len(parts[len(parts)-1]) < 2 || len(parts[len(parts)-1]) > 63 {
+			errs.Add(key, ErrNotURL)
+			return
+		}
+		var domain string
+		if len(parts) > 2 {
+			domain = strings.Join(parts[len(parts)-2:], ".")
+		} else {
+			domain = strings.Join(parts, ".")
+		}
+		if strings.ContainsAny(domain, "_,!&") {
+			errs.Add(key, ErrNotURL)
+			return
+		}
+		if strings.Count(domain, "::") > 1 { // Only 1 substitution ("::") allowed in IPv6 address.
+			errs.Add(key, ErrNotURL)
+			return
+		}
+		parts = strings.Split(domain, ":")
+		port, err := strconv.Atoi(parts[len(parts)-1])
+		if err == nil && (port < 1 || port > 65535) {
+			errs.Add(key, ErrNotURL)
+			return
 		}
 	}
 }
