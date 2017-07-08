@@ -1,33 +1,36 @@
-// Package check provides form validation utilities.
+// Package check provides request form checking.
 package check
 
-import "net/http"
+import (
+	"errors"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"os"
+)
 
 // A Checker contains keys with their checking rules.
 type Checker map[string][]Rule
 
-// Check makes the check for data (key to multiple values) and returns errors.
-func (c Checker) Check(data map[string][]string) Errors {
+// Check makes the check for a multipart.Form (values and files) and returns errors.
+func (c Checker) Check(form *multipart.Form) Errors {
 	errs := make(Errors)
-	for k, rules := range c {
-		if vv, ok := data[k]; ok {
-			for _, v := range vv {
-				for _, rule := range rules {
-					errs.Add(k, rule(v, data)...)
-				}
-			}
-			continue
-		}
-		// No data for key: see if it's required by checker.
+	for key, rules := range c {
 		for _, rule := range rules {
-			errs.Add(k, rule("", data)...)
+			rule(errs, form, key)
 		}
-		if kerrs := errs[k]; len(kerrs) == 1 && kerrs[0] == ErrRequired {
-			continue
-		}
-		delete(errs, k) // Checks has been made for key and no "required" error at the end: remove other potential errors.
 	}
 	return errs
+}
+
+// CheckValues makes the check for a values map (key to multiple values) and returns errors.
+func (c Checker) CheckValues(values map[string][]string) Errors {
+	return c.Check(&multipart.Form{Value: values})
+}
+
+// CheckFiles makes the check for a files map (key to multiple files) and returns errors.
+func (c Checker) CheckFiles(files map[string][]*multipart.FileHeader) Errors {
+	return c.Check(&multipart.Form{File: files})
 }
 
 // CheckRequest makes the check for an HTTP request and returns errors.
@@ -38,5 +41,35 @@ func (c Checker) CheckRequest(r *http.Request) Errors {
 	if r.Form == nil {
 		r.ParseMultipartForm(32 << 20) // 32 MB
 	}
-	return c.Check(r.Form)
+	form := &multipart.Form{Value: r.Form}
+	if r.MultipartForm != nil {
+		if r.MultipartForm.Value != nil {
+			for k, v := range r.MultipartForm.Value {
+				form.Value[k] = append(form.Value[k], v...)
+			}
+		}
+		form.File = r.MultipartForm.File
+	}
+	return c.Check(form)
+}
+
+func fileSize(file *multipart.FileHeader) (size int64, err error) {
+	if file == nil {
+		err = errors.New("check: no file provided")
+		return
+	}
+	// TODO: In next Go versions, use new Size attribute (https://go-review.googlesource.com/c/39223).
+	var f multipart.File
+	if f, err = file.Open(); err != nil {
+		return
+	}
+	switch ft := f.(type) {
+	case *os.File:
+		fi, _ := ft.Stat()
+		size = fi.Size()
+	default:
+		size, _ = ft.Seek(0, io.SeekEnd)
+		f.Seek(0, io.SeekStart) // Reset reader.
+	}
+	return
 }

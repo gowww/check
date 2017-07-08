@@ -1,28 +1,44 @@
 package check
 
 import (
+	"mime/multipart"
+	"net/url"
 	"reflect"
 	"testing"
 )
 
-type ruleCases []struct {
-	v    string
-	data map[string][]string
-	rule Rule
-	want []string
+type valueCases []struct {
+	v      string
+	values url.Values
+	rule   Rule
+	want   []string
 }
 
-func testRule(t *testing.T, name string, cases ruleCases) {
+type fileCases []struct {
+	f      string
+	values map[string][]*multipart.FileHeader
+	rule   Rule
+	want   []string
+}
+
+func testValueRule(t *testing.T, name string, cases valueCases) {
 	for _, c := range cases {
-		errs := c.rule(c.v, c.data)
-		if !reflect.DeepEqual(c.want, errs) {
+		errs := make(Errors)
+		if c.values == nil {
+			c.values = make(url.Values)
+		}
+		c.values[""] = []string{c.v}
+		form := &multipart.Form{Value: c.values}
+		c.rule(errs, form, "")
+		if !reflect.DeepEqual(c.want, errs[""]) {
 			t.Errorf("%s(%q): want %v, got %v", name, c.v, c.want, errs)
 		}
 	}
 }
 
 func TestAlpha(t *testing.T) {
-	testRule(t, "Alpha", ruleCases{
+	testValueRule(t, "Alpha", valueCases{
+		{"a", nil, Alpha, nil},
 		{"a", nil, Alpha, nil},
 		{"aa", nil, Alpha, nil},
 		{"1", nil, Alpha, []string{ErrNotAlpha}},
@@ -32,7 +48,7 @@ func TestAlpha(t *testing.T) {
 }
 
 func TestEmail(t *testing.T) {
-	testRule(t, "Email", ruleCases{
+	testValueRule(t, "Email", valueCases{
 		{"a@a.aa", nil, Email, nil},
 		{"a+a@a.aa", nil, Email, nil},
 		{"a", nil, Email, []string{ErrNotEmail}},
@@ -46,7 +62,7 @@ func TestEmail(t *testing.T) {
 }
 
 func TestInteger(t *testing.T) {
-	testRule(t, "Email", ruleCases{
+	testValueRule(t, "Email", valueCases{
 		{"1", nil, Integer, nil},
 		{"123", nil, Integer, nil},
 		{".", nil, Integer, []string{ErrNotInteger}},
@@ -61,7 +77,7 @@ func TestInteger(t *testing.T) {
 }
 
 func TestLatitude(t *testing.T) {
-	testRule(t, "Latitude", ruleCases{
+	testValueRule(t, "Latitude", valueCases{
 		{"12.3", nil, Latitude, nil},
 		{"+12.3", nil, Latitude, nil},
 		{"-12.3", nil, Latitude, nil},
@@ -73,7 +89,7 @@ func TestLatitude(t *testing.T) {
 }
 
 func TestLongitude(t *testing.T) {
-	testRule(t, "Longitude", ruleCases{
+	testValueRule(t, "Longitude", valueCases{
 		{"78", nil, Longitude, nil},
 		{"+78.9", nil, Longitude, nil},
 		{"-78.9", nil, Longitude, nil},
@@ -85,7 +101,7 @@ func TestLongitude(t *testing.T) {
 }
 
 func TestMax(t *testing.T) {
-	testRule(t, "Max", ruleCases{
+	testValueRule(t, "Max", valueCases{
 		{"0", nil, Max(3), nil},
 		{"1", nil, Max(3), nil},
 		{"3", nil, Max(3), nil},
@@ -98,7 +114,7 @@ func TestMax(t *testing.T) {
 }
 
 func TestMaxLen(t *testing.T) {
-	testRule(t, "MaxLen", ruleCases{
+	testValueRule(t, "MaxLen", valueCases{
 		{"a", nil, MaxLen(3), nil},
 		{"   ", nil, MaxLen(3), nil},
 		{"aaaa", nil, MaxLen(3), []string{ErrMaxLen + ":3"}},
@@ -106,7 +122,7 @@ func TestMaxLen(t *testing.T) {
 }
 
 func TestMin(t *testing.T) {
-	testRule(t, "Min", ruleCases{
+	testValueRule(t, "Min", valueCases{
 		{"3", nil, Min(3), nil},
 		{"+123.45", nil, Min(3), nil},
 		{"1", nil, Min(3), []string{ErrMin + ":3"}},
@@ -117,7 +133,7 @@ func TestMin(t *testing.T) {
 }
 
 func TestMinLen(t *testing.T) {
-	testRule(t, "MinLen", ruleCases{
+	testValueRule(t, "MinLen", valueCases{
 		{"aaa", nil, MinLen(3), nil},
 		{"    ", nil, MinLen(3), nil},
 		{"a", nil, MinLen(3), []string{ErrMinLen + ":3"}},
@@ -125,7 +141,7 @@ func TestMinLen(t *testing.T) {
 }
 
 func TestNumber(t *testing.T) {
-	testRule(t, "Number", ruleCases{
+	testValueRule(t, "Number", valueCases{
 		{"1", nil, Number, nil},
 		{"123", nil, Number, nil},
 		{"-123.45", nil, Number, nil},
@@ -136,7 +152,7 @@ func TestNumber(t *testing.T) {
 }
 
 func TestPhone(t *testing.T) {
-	testRule(t, "Phone", ruleCases{
+	testValueRule(t, "Phone", valueCases{
 		{"0012345678901", nil, Phone, nil},
 		{"+12 (0) 345.67.89.01", nil, Phone, nil},
 		{"00123", nil, Phone, []string{ErrNotPhone}},
@@ -147,7 +163,7 @@ func TestPhone(t *testing.T) {
 }
 
 func TestRange(t *testing.T) {
-	testRule(t, "Range", ruleCases{
+	testValueRule(t, "Range", valueCases{
 		{"5", nil, Range(3, 6), nil},
 		{"1", nil, Range(1, 1), nil},
 		{"2", nil, Range(3, 6), []string{ErrMin + ":3"}},
@@ -160,7 +176,7 @@ func TestRange(t *testing.T) {
 }
 
 func TestRangeLen(t *testing.T) {
-	testRule(t, "RangeLen", ruleCases{
+	testValueRule(t, "RangeLen", valueCases{
 		{"a", nil, RangeLen(1, 1), nil},
 		{"aaaaa", nil, RangeLen(3, 6), nil},
 		{"     ", nil, RangeLen(3, 6), nil},
@@ -170,11 +186,11 @@ func TestRangeLen(t *testing.T) {
 }
 
 func TestSame(t *testing.T) {
-	testRule(t, "Range", ruleCases{
-		{"v", map[string][]string{"k": {"v"}, "l": {"v"}}, Same("k", "l"), nil},
-		{"v", map[string][]string{"k": {"v"}}, Same("x"), []string{ErrNotSame + ":x"}},
-		{"x", map[string][]string{"k": {"v"}}, Same("k"), []string{ErrNotSame + ":k"}},
-		{"v", map[string][]string{"k": {"v"}, "l": {"x"}}, Same("k", "l"), []string{ErrNotSame + ":k,l"}},
+	testValueRule(t, "Range", valueCases{
+		{"v", url.Values{"k": {"v"}, "l": {"v"}}, Same("k", "l"), nil},
+		{"v", url.Values{"k": {"v"}}, Same("x"), []string{ErrNotSame + ":x"}},
+		{"x", url.Values{"k": {"v"}}, Same("k"), []string{ErrNotSame + ":k"}},
+		{"v", url.Values{"k": {"v"}, "l": {"x"}}, Same("k", "l"), []string{ErrNotSame + ":k,l"}},
 		{"v", nil, Same("k"), []string{ErrNotSame + ":k"}},
 	})
 }
