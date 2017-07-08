@@ -7,7 +7,10 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strings"
 )
+
+var errNoFileProvided = errors.New("check: no file provided")
 
 // A Checker contains keys with their checking rules.
 type Checker map[string][]Rule
@@ -53,16 +56,16 @@ func (c Checker) CheckRequest(r *http.Request) Errors {
 	return c.Check(form)
 }
 
-func fileSize(file *multipart.FileHeader) (size int64, err error) {
+func fileSize(file *multipart.FileHeader) (int64, error) {
 	if file == nil {
-		err = errors.New("check: no file provided")
-		return
+		return 0, errNoFileProvided
 	}
 	// TODO: In next Go versions, use new Size attribute (https://go-review.googlesource.com/c/39223).
-	var f multipart.File
-	if f, err = file.Open(); err != nil {
-		return
+	f, err := file.Open()
+	if err != nil {
+		return 0, err
 	}
+	var size int64
 	switch ft := f.(type) {
 	case *os.File:
 		fi, _ := ft.Stat()
@@ -71,5 +74,34 @@ func fileSize(file *multipart.FileHeader) (size int64, err error) {
 		size, _ = ft.Seek(0, io.SeekEnd)
 		f.Seek(0, io.SeekStart) // Reset reader.
 	}
-	return
+	return size, nil
+}
+
+func fileType(file *multipart.FileHeader) (string, error) {
+	if file == nil {
+		return "", errNoFileProvided
+	}
+	f, err := file.Open()
+	if err != nil {
+		return "", err
+	}
+	defer f.Seek(0, io.SeekStart) // Reset reader.
+	fh := make([]byte, 512)
+	if _, err = f.Read(fh); err != nil {
+		return "", err
+	}
+	ct := http.DetectContentType(fh)
+	if i := strings.IndexByte(ct, ';'); i != -1 {
+		ct = ct[:i]
+	}
+	return ct, nil
+}
+
+func sliceContainsString(ss []string, s string) bool {
+	for _, e := range ss {
+		if s == e {
+			return true
+		}
+	}
+	return false
 }
