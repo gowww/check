@@ -47,6 +47,42 @@ func Email(errs Errors, form *multipart.Form, key string) {
 	}
 }
 
+// FileType rule checks that file is one of given MIME types.
+func FileType(types ...string) Rule {
+	return func(errs Errors, form *multipart.Form, key string) {
+		if form == nil && form.File == nil {
+			return
+		}
+		for _, file := range form.File[key] {
+			ct, err := fileType(file)
+			if err != nil {
+				continue
+			}
+			if !sliceContainsString(types, ct) {
+				errs.Add(key, ErrBadFileType+":"+strings.Join(types, ","))
+				return
+			}
+		}
+	}
+}
+
+// Image rule checks that file is GIF, JPEG or PNG.
+func Image(errs Errors, form *multipart.Form, key string) {
+	if form == nil && form.File == nil {
+		return
+	}
+	for _, file := range form.File[key] {
+		ct, err := fileType(file)
+		if err != nil {
+			continue
+		}
+		if !sliceContainsString([]string{"image/gif", "image/jpeg", "image/png"}, ct) {
+			errs.Add(key, ErrNotImage)
+			return
+		}
+	}
+}
+
 // Integer rule checks that value represents an integer.
 func Integer(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {

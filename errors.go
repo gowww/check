@@ -2,6 +2,7 @@ package check
 
 // Error identifiers.
 const (
+	ErrBadFileType  = "badFileType"
 	ErrIllogical    = "illogical"
 	ErrInvalid      = "invalid"
 	ErrMax          = "max"
