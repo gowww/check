@@ -88,3 +88,4 @@ Function                                                            | Usage     
 [Required](https://godoc.org/github.com/gowww/check#Required)       | `Required`                          | `required`
 [Same](https://godoc.org/github.com/gowww/check#Same)               | `Same("key1", "key2")`              | `notSame:key1,key2`
 [Unique](https://godoc.org/github.com/gowww/check#Unique)           | `Unique(db, "users", "email", "?")` | `notUnique`
+[URL](https://godoc.org/github.com/gowww/check#URL)                 | `URL`                               | `notURL`

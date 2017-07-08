@@ -21,6 +21,7 @@ const (
 	ErrNotNumber    = "notNumber"
 	ErrNotPhone     = "notPhone"
 	ErrNotSame      = "notSame"
+	ErrNotURL       = "notURL"
 	ErrNotUnique    = "notUnique"
 	ErrRequired     = "required"
 )
