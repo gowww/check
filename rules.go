@@ -19,7 +19,7 @@ var (
 // It receives the errors map to add encountered errors, the whole form for relative checks, and the specific key to check.
 type Rule func(errs Errors, form *multipart.Form, key string)
 
-// Alpha rule checks if v contains alpha characters only.
+// Alpha rule checks that value contains alpha characters only.
 func Alpha(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
@@ -34,7 +34,7 @@ func Alpha(errs Errors, form *multipart.Form, key string) {
 	}
 }
 
-// Email rule checks if v represents an email.
+// Email rule checks that value represents an email.
 func Email(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
@@ -47,7 +47,7 @@ func Email(errs Errors, form *multipart.Form, key string) {
 	}
 }
 
-// Integer rule checks if v represents an integer.
+// Integer rule checks that value represents an integer.
 func Integer(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
@@ -64,7 +64,7 @@ func Integer(errs Errors, form *multipart.Form, key string) {
 	}
 }
 
-// Latitude rule checks if v represents a latitude.
+// Latitude rule checks that value represents a latitude.
 func Latitude(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
@@ -82,7 +82,7 @@ func Latitude(errs Errors, form *multipart.Form, key string) {
 	}
 }
 
-// Longitude rule checks if v represents a longitude.
+// Longitude rule checks that value represents a longitude.
 func Longitude(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
@@ -100,7 +100,7 @@ func Longitude(errs Errors, form *multipart.Form, key string) {
 	}
 }
 
-// Max rule checks if v is below or equals max.
+// Max rule checks that value is below or equals max.
 func Max(max float64) Rule {
 	return func(errs Errors, form *multipart.Form, key string) {
 		if form == nil && form.Value == nil {
@@ -120,7 +120,7 @@ func Max(max float64) Rule {
 	}
 }
 
-// MaxFileSize rule checks if v is a file and has max bytes length.
+// MaxFileSize rule checks if file has max or less bytes.
 func MaxFileSize(max int64) Rule {
 	return func(errs Errors, form *multipart.Form, key string) {
 		if form == nil && form.File == nil {
@@ -139,7 +139,7 @@ func MaxFileSize(max int64) Rule {
 	}
 }
 
-// MaxLen rule checks if v length is below or equals max.
+// MaxLen rule checks that value length is below or equals max.
 func MaxLen(max int) Rule {
 	return func(errs Errors, form *multipart.Form, key string) {
 		if form == nil && form.Value == nil {
@@ -154,7 +154,7 @@ func MaxLen(max int) Rule {
 	}
 }
 
-// Min rule checks if v is over or equals min.
+// Min rule checks that value is over or equals min.
 func Min(min float64) Rule {
 	return func(errs Errors, form *multipart.Form, key string) {
 		if form == nil && form.Value == nil {
@@ -174,7 +174,7 @@ func Min(min float64) Rule {
 	}
 }
 
-// MinFileSize rule checks if v is a file and has min bytes length.
+// MinFileSize rule checks if file has min or more bytes.
 func MinFileSize(min int64) Rule {
 	return func(errs Errors, form *multipart.Form, key string) {
 		if form == nil && form.File == nil {
@@ -193,7 +193,7 @@ func MinFileSize(min int64) Rule {
 	}
 }
 
-// MinLen rule checks if v length is over or equals min.
+// MinLen rule checks that value length is over or equals min.
 func MinLen(min int) Rule {
 	return func(errs Errors, form *multipart.Form, key string) {
 		if form == nil && form.Value == nil {
@@ -208,7 +208,7 @@ func MinLen(min int) Rule {
 	}
 }
 
-// Number rule checks if v represents a number.
+// Number rule checks that value represents a number.
 func Number(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
@@ -222,7 +222,7 @@ func Number(errs Errors, form *multipart.Form, key string) {
 	}
 }
 
-// Phone rule checks if v represents a phone number.
+// Phone rule checks that value represents a phone number.
 func Phone(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
@@ -235,7 +235,7 @@ func Phone(errs Errors, form *multipart.Form, key string) {
 	}
 }
 
-// Range rule checks if v represents a number inside a range.
+// Range rule checks that value represents a number inside a range.
 func Range(min, max float64) Rule {
 	return func(errs Errors, form *multipart.Form, key string) {
 		if form == nil && form.Value == nil {
@@ -259,7 +259,30 @@ func Range(min, max float64) Rule {
 	}
 }
 
-// RangeLen rule checks if v length is between or equal min and max.
+// RangeFileSize rule checks if file length is inside a range.
+func RangeFileSize(min, max int64) Rule {
+	return func(errs Errors, form *multipart.Form, key string) {
+		if form == nil && form.File == nil {
+			return
+		}
+		for _, file := range form.File[key] {
+			size, err := fileSize(file)
+			if err != nil {
+				continue
+			}
+			if size > max {
+				errs.Add(key, fmt.Sprintf("%s:%d", ErrMaxFileSize, max))
+				return
+			}
+			if size < min {
+				errs.Add(key, fmt.Sprintf("%s:%d", ErrMinFileSize, min))
+				return
+			}
+		}
+	}
+}
+
+// RangeLen rule checks that value length is inside a range.
 func RangeLen(min, max int) Rule {
 	return func(errs Errors, form *multipart.Form, key string) {
 		if form == nil && form.Value == nil {
@@ -278,8 +301,8 @@ func RangeLen(min, max int) Rule {
 	}
 }
 
-// Required rule checks that v is not empty.
-// v is not trimmed so a single space can pass the check.
+// Required rule checks that value or file exists and is not empty.
+// A value is not trimmed so a single space can pass the check.
 func Required(errs Errors, form *multipart.Form, key string) {
 	if form == nil {
 		errs.Add(key, ErrRequired)
@@ -303,7 +326,7 @@ func Required(errs Errors, form *multipart.Form, key string) {
 	return
 }
 
-// Same rule checks that v is the same as another key value.
+// Same rule checks that value deeply equals another key value.
 func Same(keys ...string) Rule {
 	return func(errs Errors, form *multipart.Form, key string) {
 		if form == nil && form.Value == nil {
@@ -318,7 +341,7 @@ func Same(keys ...string) Rule {
 	}
 }
 
-// Unique rule checks if v is unique in database.
+// Unique rule checks that value is unique in database.
 // The placeholder ("?", "$1" or other) must be provided as it depends on the SQL driver.
 func Unique(db *sql.DB, table, column, placeholder string) Rule {
 	if db == nil {

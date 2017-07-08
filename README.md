@@ -22,7 +22,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides request form 
 
 	```Go
 	checker := check.Checker{
-		"email":   {check.Required, check.Email},
+		"email":   {check.Required, check.Email, check.Unique(db, "users", "email", "?")},
 		"phone":   {check.Phone},
 		"picture": {check.MaxFileSize(5000)},
 		"stars":   {check.Required, check.Range(3, 5)},
