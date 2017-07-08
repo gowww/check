@@ -70,6 +70,8 @@ Function                                                            | Usage     
 --------------------------------------------------------------------|-------------------------------------|------------------------------------
 [Alpha](https://godoc.org/github.com/gowww/check#Alpha)             | `Alpha`                             | `notAlpha`
 [Email](https://godoc.org/github.com/gowww/check#Email)             | `Email`                             | `notEmail`
+[FileType](https://godoc.org/github.com/gowww/check#FileType)       | `FileType("text/plain")`            | `badFileType:text/plain`
+[Image](https://godoc.org/github.com/gowww/check#Image)             | `Image`                             | `notImage`
 [Integer](https://godoc.org/github.com/gowww/check#Integer)         | `Integer`                           | `notInteger`
 [Latitude](https://godoc.org/github.com/gowww/check#Latitude)       | `Latitude`                          | `notLatitude`, `notNumber`
 [Longitude](https://godoc.org/github.com/gowww/check#Longitude)     | `Longitude`                         | `notLongitude`, `notNumber`
