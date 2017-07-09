@@ -421,7 +421,7 @@ func URL(errs Errors, form *multipart.Form, key string) {
 			return
 		}
 		parts := strings.Split(u.Host, ".")
-		if parts[0] == "" || len(parts[len(parts)-1]) < 2 || len(parts[len(parts)-1]) > 63 {
+		if parts[0] == "" {
 			errs.Add(key, ErrNotURL)
 			return
 		}
@@ -431,7 +431,7 @@ func URL(errs Errors, form *multipart.Form, key string) {
 		} else {
 			domain = strings.Join(parts, ".")
 		}
-		if strings.ContainsAny(domain, "_,!&") {
+		if strings.ContainsAny(domain, "_,&") {
 			errs.Add(key, ErrNotURL)
 			return
 		}
