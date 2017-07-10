@@ -130,7 +130,7 @@ func (e *Error) T(t *i18n.Translator) string {
 }
 
 // TDefault returns the default translation of Error.
-// If Error has no translation for language l, the raw string representation is returned.
+// If Error has no translation for language l, the raw string representation.
 func (e *Error) TDefault(l language.Tag) string {
 	if len(e.Error.Locales) == 0 {
 		return e.String()
@@ -180,7 +180,7 @@ func (e Errors) Add(key string, err *Error) {
 	}
 }
 
-// Empty tells if the errors map is empty.
+// Empty tells if the errors map contains no keys.
 func (e Errors) Empty() bool {
 	return len(e) == 0
 }
@@ -190,14 +190,14 @@ func (e Errors) NotEmpty() bool {
 	return !e.Empty()
 }
 
-// Has checks if the errors map contains a key.
+// Has tells if the errors map contains a key.
 func (e Errors) Has(key string) bool {
 	_, ok := e[key]
 	return ok
 }
 
 // First returns the first error for key.
-// If the key doesn't exist, nil is returned.
+// If the key doesn't exist, nil.
 func (e Errors) First(key string) *Error {
 	v := e[key]
 	if len(v) == 0 {
@@ -242,15 +242,34 @@ func (e Errors) JSON() interface{} {
 	return map[string]map[string][]string{"errors": e.StringMap()}
 }
 
-// Translated returns a tranlated Errors map.
+// TranslatedErrors is a map of keys and their translated errors.
+type TranslatedErrors map[string][]string
+
+// T returns a tranlated Errors map.
 // If t is nil, built-in translations are used.
-func (e Errors) Translated(t *i18n.Translator) map[string][]string {
-	tm := make(map[string][]string, len(e))
+func (e Errors) T(t *i18n.Translator) TranslatedErrors {
+	te := make(TranslatedErrors, len(e))
 	for k, errs := range e {
-		tm[k] = make([]string, 0, len(errs))
+		te[k] = make([]string, 0, len(errs))
 		for _, err := range errs {
-			tm[k] = append(tm[k], err.T(t))
+			te[k] = append(te[k], err.T(t))
 		}
 	}
-	return tm
+	return te
+}
+
+// Has tells if the translated errors map contains a key.
+func (e TranslatedErrors) Has(key string) bool {
+	_, ok := e[key]
+	return ok
+}
+
+// First returns the first translated error for key.
+// If the key doesn't exist, an empty string.
+func (e TranslatedErrors) First(key string) string {
+	v := e[key]
+	if len(v) == 0 {
+		return ""
+	}
+	return v[0]
 }
