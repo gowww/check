@@ -24,7 +24,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides request form 
 	checker := check.Checker{
 		"email":   {check.Required, check.Email, check.Unique(db, "users", "email", "?")},
 		"phone":   {check.Phone},
-		"picture": {check.MaxFileSize(5000)},
+		"picture": {check.MaxFileSize(5000), check.Image},
 		"stars":   {check.Required, check.Range(3, 5)},
 	}
 	```
@@ -89,3 +89,7 @@ Function                                                            | Usage     
 [Same](https://godoc.org/github.com/gowww/check#Same)               | `Same("key1", "key2")`              | `notSame:key1,key2`
 [Unique](https://godoc.org/github.com/gowww/check#Unique)           | `Unique(db, "users", "email", "?")` | `notUnique`
 [URL](https://godoc.org/github.com/gowww/check#URL)                 | `URL`                               | `notURL`
+
+## Internationalization
+
+Work in progress...
