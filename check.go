@@ -18,7 +18,7 @@ type Checker map[string][]Rule
 
 // Check makes the check for a multipart.Form (values and files) and returns errors.
 //
-// Result is garanteed to be non-nil.
+// Result is guaranteed to be non-nil.
 func (c Checker) Check(form *multipart.Form) Errors {
 	errs := make(Errors)
 	for key, rules := range c {
@@ -31,14 +31,14 @@ func (c Checker) Check(form *multipart.Form) Errors {
 
 // CheckValues makes the check for a values map (key to multiple values) and returns errors.
 //
-// Result is garanteed to be non-nil.
+// Result is guaranteed to be non-nil.
 func (c Checker) CheckValues(values map[string][]string) Errors {
 	return c.Check(&multipart.Form{Value: values})
 }
 
 // CheckFiles makes the check for a files map (key to multiple files) and returns errors.
 //
-// Result is garanteed to be non-nil.
+// Result is guaranteed to be non-nil.
 func (c Checker) CheckFiles(files map[string][]*multipart.FileHeader) Errors {
 	return c.Check(&multipart.Form{File: files})
 }
@@ -48,7 +48,7 @@ func (c Checker) CheckFiles(files map[string][]*multipart.FileHeader) Errors {
 // Request data can have multiple values with the same key (or field).
 // In tis case, all values are checked and if one fails, the error is set for the whole key.
 //
-// Result is garanteed to be non-nil.
+// Result is guaranteed to be non-nil.
 func (c Checker) CheckRequest(r *http.Request) Errors {
 	if r.Form == nil {
 		r.ParseMultipartForm(32 << 20) // 32 MB

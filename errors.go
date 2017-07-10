@@ -206,6 +206,16 @@ func (e Errors) First(key string) *Error {
 	return v[0]
 }
 
+func (e Errors) String() string {
+	buf := new(bytes.Buffer)
+	enc := json.NewEncoder(buf)
+	enc.SetIndent("", "\t")
+	if err := enc.Encode(e.StringMap()); err != nil {
+		panic(err)
+	}
+	return buf.String()
+}
+
 // Merge merges two Errors maps.
 func (e Errors) Merge(e2 Errors) {
 	for k, errs := range e2 {
@@ -227,31 +237,14 @@ func (e Errors) StringMap() map[string][]string {
 	return m
 }
 
-func (e Errors) String() string {
-	buf := new(bytes.Buffer)
-	enc := json.NewEncoder(buf)
-	enc.SetIndent("", "\t")
-	if err := enc.Encode(e.StringMap()); err != nil {
-		panic(err)
-	}
-	return buf.String()
-}
-
 // JSON returns the errors map under the "errors" key, ready to be encoded.
 func (e Errors) JSON() interface{} {
-	js := make(map[string][]string, len(e))
-	for k, errs := range e {
-		js[k] = make([]string, 0, len(errs))
-		for _, err := range errs {
-			js[k] = append(js[k], err.String())
-		}
-	}
 	return map[string]map[string][]string{"errors": e.StringMap()}
 }
 
-// Translate returns a tranlated Errors map.
+// Translated returns a tranlated Errors map.
 // If t is nil, built-in translations are used.
-func (e Errors) Translate(t *i18n.Translator) map[string][]string {
+func (e Errors) Translated(t *i18n.Translator) map[string][]string {
 	tm := make(map[string][]string, len(e))
 	for k, errs := range e {
 		tm[k] = make([]string, 0, len(errs))

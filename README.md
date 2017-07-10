@@ -2,6 +2,12 @@
 
 Package [check](https://godoc.org/github.com/gowww/check) provides request form checking.
 
+- [Installing](#installing)
+- [Usage](#usage)
+	- [JSON](#json)
+	- [Internationalization](#internationalization)
+	- [Rules](#rules)
+
 ## Installing
 
 1. Get package:
@@ -55,14 +61,44 @@ Package [check](https://godoc.org/github.com/gowww/check) provides request form 
 	}
 	```
 
-	If errors must be JSON formatted (for an HTTP API response, by example), use [Errors.JSON](https://godoc.org/github.com/gowww/check#Errors.JSON):
+### JSON
 
-	```Go
-	if errs.NotEmpty() {
-		errsjs, _ := json.Marshal(errs.JSON())
-		w.Write(errsjs)
-	}
-	```
+Use [Errors.JSON](https://godoc.org/github.com/gowww/check#Errors.JSON) to get errors in a map under `errors` key, ready to be JSON formatted (as an HTTP API response, for example):
+
+```Go
+if errs.NotEmpty() {
+	errsjs, _ := json.Marshal(errs.JSON())
+	w.Write(errsjs)
+}
+```
+
+### Internationalization
+
+Internationalization is handled by [gowww/i18n](https://godoc.org/github.com/gowww/i18n) and there are [built-in translations](https://godoc.org/github.com/gowww/check#pkg-variables) for all errors.
+
+Use [Errors.Translate](https://godoc.org/github.com/gowww/check#Errors.Translate) with an [i18n.Translator](https://godoc.org/github.com/gowww/i18n#Translator) (usually stored in the request context) to get translated errors:
+
+```Go
+if errs.NotEmpty() {
+	transErrs := errs.Translated(i18n.RequestTranslator(r))
+	fmt.Println(transErrs)
+}
+```
+
+You can provide custom translations for each error type under keys like "`error` + ErrorID":
+
+```Go
+var locales = i18n.Locales{
+	language.English: {
+		"hello": "Hello!",
+
+		"errorMaxFileSize": "File too big (%v max.)",
+		"errorRequired":    "Required field",
+	},
+}
+```
+
+If the [i18n.Translator](https://godoc.org/github.com/gowww/i18n#Translator) is `nil` or a custom translation is not found, the built-in translation of error is used.
 
 ### Rules
 
@@ -89,7 +125,3 @@ Function                                                            | Usage     
 [Same](https://godoc.org/github.com/gowww/check#Same)               | `Same("key1", "key2")`              | `notSame:key1,key2`
 [Unique](https://godoc.org/github.com/gowww/check#Unique)           | `Unique(db, "users", "email", "?")` | `notUnique`
 [URL](https://godoc.org/github.com/gowww/check#URL)                 | `URL`                               | `notURL`
-
-## Internationalization
-
-Work in progress...
