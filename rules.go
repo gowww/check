@@ -50,7 +50,7 @@ var Email Rule = func(errs Errors, form *multipart.Form, key string) {
 }
 
 // FileType rule checks that file is one of given MIME types.
-var FileType Rule = func(types ...string) Rule {
+func FileType(types ...string) Rule {
 	return func(errs Errors, form *multipart.Form, key string) {
 		if form == nil && form.File == nil {
 			return
