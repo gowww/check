@@ -27,23 +27,24 @@ Package [check](https://godoc.org/github.com/gowww/check) provides request form 
 1. Make a [Checker](https://godoc.org/github.com/gowww/check#Checker) with [rules](#rules) for keys:
 
 	```Go
-	checker := check.Checker{
+	userChecker := check.Checker{
 		"email":   {check.Required, check.Email, check.Unique(db, "users", "email", "?")},
 		"phone":   {check.Phone},
 		"picture": {check.MaxFileSize(5000), check.Image},
-		"stars":   {check.Required, check.Range(3, 5)},
 	}
 	```
+
+	The rules order is significant.  
+	So for an email address for example, it's clever to check its format before its uniqueness to avoid useless database requests.
 
 2. Check data:
 
 	- From a values map, with [Checker.CheckValues](https://godoc.org/github.com/gowww/check#Checker.CheckValues):
 	
 		```Go
-		errs := checker.CheckValues(map[string][]string{
+		errs := userChecker.CheckValues(map[string][]string{
 			"name":  {"foobar"},
 			"phone": {"0012345678901"},
-			"stars": {"2"},
 		})
 		```
 

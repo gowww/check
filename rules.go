@@ -386,6 +386,9 @@ func Unique(db *sql.DB, table, column, placeholder string) Rule {
 		panic(`check: no database provided for "unique" rule`)
 	}
 	return func(errs Errors, form *multipart.Form, key string) {
+		if _, ok := errs[key]; ok { // Avoid a database call if the format is already bad.
+			return
+		}
 		for _, v := range form.Value[key] {
 			var n int
 			if err := db.QueryRow("SELECT COUNT() FROM "+table+" WHERE "+column+" = "+placeholder, v).Scan(&n); err != nil {
