@@ -10,7 +10,7 @@ func Example() {
 	checker := check.Checker{
 		"email":   {check.Required, check.Email},
 		"phone":   {check.Phone},
-		"picture": {check.MaxFileSize(5000)},
+		"picture": {check.MaxFileSize(5000), check.Image},
 		"stars":   {check.Required, check.Range(3, 5)},
 	}
 
