@@ -22,7 +22,7 @@ var (
 type Rule func(errs Errors, form *multipart.Form, key string)
 
 // Alpha rule checks that value contains alpha characters only.
-var Alpha Rule = func(errs Errors, form *multipart.Form, key string) {
+func Alpha(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
 	}
@@ -37,7 +37,7 @@ var Alpha Rule = func(errs Errors, form *multipart.Form, key string) {
 }
 
 // Email rule checks that value represents an email.
-var Email Rule = func(errs Errors, form *multipart.Form, key string) {
+func Email(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
 	}
@@ -69,7 +69,7 @@ func FileType(types ...string) Rule {
 }
 
 // Image rule checks that file is GIF, JPEG or PNG.
-var Image Rule = func(errs Errors, form *multipart.Form, key string) {
+func Image(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.File == nil {
 		return
 	}
@@ -86,7 +86,7 @@ var Image Rule = func(errs Errors, form *multipart.Form, key string) {
 }
 
 // Integer rule checks that value represents an integer.
-var Integer Rule = func(errs Errors, form *multipart.Form, key string) {
+func Integer(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
 	}
@@ -103,7 +103,7 @@ var Integer Rule = func(errs Errors, form *multipart.Form, key string) {
 }
 
 // Latitude rule checks that value represents a latitude.
-var Latitude Rule = func(errs Errors, form *multipart.Form, key string) {
+func Latitude(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
 	}
@@ -121,7 +121,7 @@ var Latitude Rule = func(errs Errors, form *multipart.Form, key string) {
 }
 
 // Longitude rule checks that value represents a longitude.
-var Longitude Rule = func(errs Errors, form *multipart.Form, key string) {
+func Longitude(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
 	}
@@ -247,7 +247,7 @@ func MinLen(min int) Rule {
 }
 
 // Number rule checks that value represents a number.
-var Number Rule = func(errs Errors, form *multipart.Form, key string) {
+func Number(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
 	}
@@ -261,7 +261,7 @@ var Number Rule = func(errs Errors, form *multipart.Form, key string) {
 }
 
 // Phone rule checks that value represents a phone number.
-var Phone Rule = func(errs Errors, form *multipart.Form, key string) {
+func Phone(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
 	}
@@ -341,7 +341,7 @@ func RangeLen(min, max int) Rule {
 
 // Required rule checks that value or file exists and is not empty.
 // A value is not trimmed so a single space can pass the check.
-var Required Rule = func(errs Errors, form *multipart.Form, key string) {
+func Required(errs Errors, form *multipart.Form, key string) {
 	if form == nil {
 		errs.Add(key, &Error{Error: ErrRequired})
 		return
@@ -400,7 +400,7 @@ func Unique(db *sql.DB, table, column, placeholder string) Rule {
 }
 
 // URL rule checks that value represents an URL.
-var URL Rule = func(errs Errors, form *multipart.Form, key string) {
+func URL(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
 		return
 	}
