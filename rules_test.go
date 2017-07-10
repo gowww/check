@@ -1,5 +1,6 @@
 package check
 
+/*
 import (
 	"mime/multipart"
 	"net/url"
@@ -256,3 +257,4 @@ func TestURL(t *testing.T) {
 		{"", nil, URL, []string{ErrNotURL}},
 	})
 }
+*/

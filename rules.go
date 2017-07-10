@@ -2,13 +2,14 @@ package check
 
 import (
 	"database/sql"
-	"fmt"
 	"mime/multipart"
 	"net/url"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/gowww/i18n"
 )
 
 var (
@@ -28,7 +29,7 @@ func Alpha(errs Errors, form *multipart.Form, key string) {
 	for _, v := range form.Value[key] {
 		for i := 0; i < len(v); i++ {
 			if v[i] < 65 || v[i] > 90 && v[i] < 97 || v[i] > 122 {
-				errs.Add(key, ErrNotAlpha)
+				errs.Add(key, &Error{Error: ErrNotAlpha})
 				return
 			}
 		}
@@ -42,7 +43,7 @@ func Email(errs Errors, form *multipart.Form, key string) {
 	}
 	for _, v := range form.Value[key] {
 		if !reEmail.MatchString(v) {
-			errs.Add(key, ErrNotEmail)
+			errs.Add(key, &Error{Error: ErrNotEmail})
 			return
 		}
 	}
@@ -60,7 +61,7 @@ func FileType(types ...string) Rule {
 				continue
 			}
 			if !sliceContainsString(types, ct) {
-				errs.Add(key, ErrBadFileType+":"+strings.Join(types, ","))
+				errs.Add(key, &Error{Error: ErrBadFileType, Args: stringsToInterfaces(types)})
 				return
 			}
 		}
@@ -78,7 +79,7 @@ func Image(errs Errors, form *multipart.Form, key string) {
 			continue
 		}
 		if !sliceContainsString([]string{"image/gif", "image/jpeg", "image/png"}, ct) {
-			errs.Add(key, ErrNotImage)
+			errs.Add(key, &Error{Error: ErrNotImage})
 			return
 		}
 	}
@@ -91,11 +92,11 @@ func Integer(errs Errors, form *multipart.Form, key string) {
 	}
 	for _, v := range form.Value[key] {
 		if v == "." {
-			errs.Add(key, ErrNotInteger)
+			errs.Add(key, &Error{Error: ErrNotInteger})
 			return
 		}
 		if _, err := strconv.Atoi(v); err != nil {
-			errs.Add(key, ErrNotInteger)
+			errs.Add(key, &Error{Error: ErrNotInteger})
 			return
 		}
 	}
@@ -109,11 +110,11 @@ func Latitude(errs Errors, form *multipart.Form, key string) {
 	for _, v := range form.Value[key] {
 		f, err := strconv.ParseFloat(v, 64)
 		if err != nil {
-			errs.Add(key, ErrNotNumber)
+			errs.Add(key, &Error{Error: ErrNotNumber})
 			return
 		}
 		if f < -90 || f > 90 {
-			errs.Add(key, ErrNotLatitude)
+			errs.Add(key, &Error{Error: ErrNotLatitude})
 			return
 		}
 	}
@@ -127,11 +128,11 @@ func Longitude(errs Errors, form *multipart.Form, key string) {
 	for _, v := range form.Value[key] {
 		f, err := strconv.ParseFloat(v, 64)
 		if err != nil {
-			errs.Add(key, ErrNotNumber)
+			errs.Add(key, &Error{Error: ErrNotNumber})
 			return
 		}
 		if f < -180 || f > 180 {
-			errs.Add(key, ErrNotLongitude)
+			errs.Add(key, &Error{Error: ErrNotLongitude})
 			return
 		}
 	}
@@ -146,11 +147,11 @@ func Max(max float64) Rule {
 		for _, v := range form.Value[key] {
 			f, err := strconv.ParseFloat(v, 64)
 			if err != nil {
-				errs.Add(key, ErrNotNumber)
+				errs.Add(key, &Error{Error: ErrNotNumber})
 				return
 			}
 			if f > max {
-				errs.Add(key, fmt.Sprintf("%s:%g", ErrMax, max))
+				errs.Add(key, &Error{Error: ErrMax, Args: []interface{}{i18n.TransInt(max)}})
 				return
 			}
 		}
@@ -169,7 +170,7 @@ func MaxFileSize(max int64) Rule {
 				continue
 			}
 			if size > max {
-				errs.Add(key, fmt.Sprintf("%s:%d", ErrMaxFileSize, max))
+				errs.Add(key, &Error{Error: ErrMaxFileSize, Args: []interface{}{i18n.TransFileSize(max)}})
 				return
 			}
 		}
@@ -184,7 +185,7 @@ func MaxLen(max int) Rule {
 		}
 		for _, v := range form.Value[key] {
 			if len(v) > max {
-				errs.Add(key, fmt.Sprintf("%s:%d", ErrMaxLen, max))
+				errs.Add(key, &Error{Error: ErrMaxLen, Args: []interface{}{i18n.TransInt(max)}})
 				return
 			}
 		}
@@ -200,11 +201,11 @@ func Min(min float64) Rule {
 		for _, v := range form.Value[key] {
 			f, err := strconv.ParseFloat(v, 64)
 			if err != nil {
-				errs.Add(key, ErrNotNumber)
+				errs.Add(key, &Error{Error: ErrNotNumber})
 				return
 			}
 			if f < min {
-				errs.Add(key, fmt.Sprintf("%s:%g", ErrMin, min))
+				errs.Add(key, &Error{Error: ErrMin, Args: []interface{}{i18n.TransInt(min)}})
 				return
 			}
 		}
@@ -223,7 +224,7 @@ func MinFileSize(min int64) Rule {
 				continue
 			}
 			if size < min {
-				errs.Add(key, fmt.Sprintf("%s:%d", ErrMinFileSize, min))
+				errs.Add(key, &Error{Error: ErrMinFileSize, Args: []interface{}{i18n.TransFileSize(min)}})
 				return
 			}
 		}
@@ -238,7 +239,7 @@ func MinLen(min int) Rule {
 		}
 		for _, v := range form.Value[key] {
 			if len(v) < min {
-				errs.Add(key, fmt.Sprintf("%s:%d", ErrMinLen, min))
+				errs.Add(key, &Error{Error: ErrMinLen, Args: []interface{}{i18n.TransInt(min)}})
 				return
 			}
 		}
@@ -253,7 +254,7 @@ func Number(errs Errors, form *multipart.Form, key string) {
 	for _, v := range form.Value[key] {
 		_, err := strconv.ParseFloat(v, 64)
 		if err != nil {
-			errs.Add(key, ErrNotNumber)
+			errs.Add(key, &Error{Error: ErrNotNumber})
 			return
 		}
 	}
@@ -266,7 +267,7 @@ func Phone(errs Errors, form *multipart.Form, key string) {
 	}
 	for _, v := range form.Value[key] {
 		if !rePhone.MatchString(v) {
-			errs.Add(key, ErrNotPhone)
+			errs.Add(key, &Error{Error: ErrNotPhone})
 			return
 		}
 	}
@@ -281,15 +282,15 @@ func Range(min, max float64) Rule {
 		for _, v := range form.Value[key] {
 			f, err := strconv.ParseFloat(v, 64)
 			if err != nil {
-				errs.Add(key, ErrNotNumber)
-				return
-			}
-			if f < min {
-				errs.Add(key, fmt.Sprintf("%s:%g", ErrMin, min))
+				errs.Add(key, &Error{Error: ErrNotNumber})
 				return
 			}
 			if f > max {
-				errs.Add(key, fmt.Sprintf("%s:%g", ErrMax, max))
+				errs.Add(key, &Error{Error: ErrMax, Args: []interface{}{i18n.TransInt(max)}})
+				return
+			}
+			if f < min {
+				errs.Add(key, &Error{Error: ErrMin, Args: []interface{}{i18n.TransInt(min)}})
 				return
 			}
 		}
@@ -308,11 +309,11 @@ func RangeFileSize(min, max int64) Rule {
 				continue
 			}
 			if size > max {
-				errs.Add(key, fmt.Sprintf("%s:%d", ErrMaxFileSize, max))
+				errs.Add(key, &Error{Error: ErrMaxFileSize, Args: []interface{}{i18n.TransFileSize(max)}})
 				return
 			}
 			if size < min {
-				errs.Add(key, fmt.Sprintf("%s:%d", ErrMinFileSize, min))
+				errs.Add(key, &Error{Error: ErrMinFileSize, Args: []interface{}{i18n.TransFileSize(min)}})
 				return
 			}
 		}
@@ -327,11 +328,11 @@ func RangeLen(min, max int) Rule {
 		}
 		for _, v := range form.Value[key] {
 			if len(v) > max {
-				errs.Add(key, fmt.Sprintf("%s:%d", ErrMaxLen, max))
+				errs.Add(key, &Error{Error: ErrMaxLen, Args: []interface{}{i18n.TransInt(max)}})
 				return
 			}
 			if len(v) < min {
-				errs.Add(key, fmt.Sprintf("%s:%d", ErrMinLen, min))
+				errs.Add(key, &Error{Error: ErrMinLen, Args: []interface{}{i18n.TransInt(min)}})
 				return
 			}
 		}
@@ -342,7 +343,7 @@ func RangeLen(min, max int) Rule {
 // A value is not trimmed so a single space can pass the check.
 func Required(errs Errors, form *multipart.Form, key string) {
 	if form == nil {
-		errs.Add(key, ErrRequired)
+		errs.Add(key, &Error{Error: ErrRequired})
 		return
 	}
 	if form.Value != nil {
@@ -359,7 +360,7 @@ func Required(errs Errors, form *multipart.Form, key string) {
 			}
 		}
 	}
-	errs.Add(key, ErrRequired)
+	errs.Add(key, &Error{Error: ErrRequired})
 	return
 }
 
@@ -371,7 +372,7 @@ func Same(keys ...string) Rule {
 		}
 		for _, k := range keys {
 			if !reflect.DeepEqual(form.Value[key], form.Value[k]) {
-				errs.Add(key, ErrNotSame+":"+strings.Join(keys, ","))
+				errs.Add(key, &Error{Error: ErrNotSame, Args: stringsToInterfaces(keys)})
 				return
 			}
 		}
@@ -391,7 +392,7 @@ func Unique(db *sql.DB, table, column, placeholder string) Rule {
 				panic(err)
 			}
 			if n > 0 {
-				errs.Add(key, ErrNotUnique)
+				errs.Add(key, &Error{Error: ErrNotUnique})
 				return
 			}
 		}
@@ -405,7 +406,7 @@ func URL(errs Errors, form *multipart.Form, key string) {
 	}
 	for _, v := range form.Value[key] {
 		if len(v) < 4 {
-			errs.Add(key, ErrNotURL)
+			errs.Add(key, &Error{Error: ErrNotURL})
 			return
 		}
 		v = strings.Replace(v, "127.0.0.1", "localhost", 1)
@@ -417,12 +418,12 @@ func URL(errs Errors, form *multipart.Form, key string) {
 		}
 		u, err := url.ParseRequestURI(v)
 		if err != nil || u.Host == "" || u.Host[0] == '-' || strings.Contains(u.Host, ".-") || strings.Contains(u.Host, "-.") {
-			errs.Add(key, ErrNotURL)
+			errs.Add(key, &Error{Error: ErrNotURL})
 			return
 		}
 		parts := strings.Split(u.Host, ".")
 		if parts[0] == "" {
-			errs.Add(key, ErrNotURL)
+			errs.Add(key, &Error{Error: ErrNotURL})
 			return
 		}
 		var domain string
@@ -432,17 +433,17 @@ func URL(errs Errors, form *multipart.Form, key string) {
 			domain = strings.Join(parts, ".")
 		}
 		if strings.ContainsAny(domain, "_,&") {
-			errs.Add(key, ErrNotURL)
+			errs.Add(key, &Error{Error: ErrNotURL})
 			return
 		}
 		if strings.Count(domain, "::") > 1 { // Only 1 substitution ("::") allowed in IPv6 address.
-			errs.Add(key, ErrNotURL)
+			errs.Add(key, &Error{Error: ErrNotURL})
 			return
 		}
 		parts = strings.Split(domain, ":")
 		port, err := strconv.Atoi(parts[len(parts)-1])
 		if err == nil && (port < 1 || port > 65535) {
-			errs.Add(key, ErrNotURL)
+			errs.Add(key, &Error{Error: ErrNotURL})
 			return
 		}
 	}
