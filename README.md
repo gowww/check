@@ -30,7 +30,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides request form 
 	userChecker := check.Checker{
 		"email":   {check.Required, check.Email, check.Unique(db, "users", "email", "?")},
 		"phone":   {check.Phone},
-		"picture": {check.MaxFileSize(5000), check.Image},
+		"picture": {check.MaxFileSize(5000000), check.Image},
 	}
 	```
 
@@ -112,10 +112,10 @@ Function                                                            | Usage     
 [Latitude](https://godoc.org/github.com/gowww/check#Latitude)       | `Latitude`                          | `notLatitude`, `notNumber`
 [Longitude](https://godoc.org/github.com/gowww/check#Longitude)     | `Longitude`                         | `notLongitude`, `notNumber`
 [Max](https://godoc.org/github.com/gowww/check#Max)                 | `Max(1)`                            | `max:1`, `notNumber`
-[MaxFileSize](https://godoc.org/github.com/gowww/check#MaxFileSize) | `MaxFileSize(5000)`                 | `maxFileSize:1`
+[MaxFileSize](https://godoc.org/github.com/gowww/check#MaxFileSize) | `MaxFileSize(5000000)`              | `maxFileSize:5000000`
 [MaxLen](https://godoc.org/github.com/gowww/check#MaxLen)           | `MaxLen(1)`                         | `maxLen:1`, `notNumber`
 [Min](https://godoc.org/github.com/gowww/check#Min)                 | `Min(1)`                            | `min:1`, `notNumber`
-[MinFileSize](https://godoc.org/github.com/gowww/check#MinFileSize) | `MinFileSize(10)`                   | `minFileSize:1`
+[MinFileSize](https://godoc.org/github.com/gowww/check#MinFileSize) | `MinFileSize(10)`                   | `minFileSize:10`
 [MinLen](https://godoc.org/github.com/gowww/check#MinLen)           | `MinLen(1)`                         | `minLen:1`, `notNumber`
 [Number](https://godoc.org/github.com/gowww/check#Number)           | `Number`                            | `notNumber`
 [Phone](https://godoc.org/github.com/gowww/check#Phone)             | `Phone`                             | `notPhone`
