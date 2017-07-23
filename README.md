@@ -76,11 +76,11 @@ if errs.NotEmpty() {
 
 Internationalization is handled by [gowww/i18n](https://godoc.org/github.com/gowww/i18n) and there are [built-in translations](https://godoc.org/github.com/gowww/check#pkg-variables) for all errors.
 
-Use [Errors.Translate](https://godoc.org/github.com/gowww/check#Errors.Translate) with an [i18n.Translator](https://godoc.org/github.com/gowww/i18n#Translator) (usually stored in the request context) to get translated errors:
+Use [Errors.T](https://godoc.org/github.com/gowww/check#Errors.T) with an [i18n.Translator](https://godoc.org/github.com/gowww/i18n#Translator) (usually stored in the request context) to get T errors:
 
 ```Go
 if errs.NotEmpty() {
-	transErrs := errs.Translated(i18n.RequestTranslator(r))
+	transErrs := errs.T(i18n.RequestTranslator(r))
 	fmt.Println(transErrs)
 }
 ```
