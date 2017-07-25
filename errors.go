@@ -59,6 +59,10 @@ var (
 		language.English: "It's not a letters-only string.",
 		language.French:  "Ce n'est pas une suite de lettres (uniquement).",
 	}}
+	ErrNotAlphanumeric = &ErrorID{ID: "notAlphanumeric", Locales: map[language.Tag]string{
+		language.English: "It's not an alphanumeric-only string.",
+		language.French:  "Ce n'est pas une suite alphanumérique (uniquement).",
+	}}
 	ErrNotEmail = &ErrorID{ID: "notEmail", Locales: map[language.Tag]string{
 		language.English: "It's not an email.",
 		language.French:  "Ce n'est pas un e-mail.",
