@@ -36,6 +36,21 @@ func Alpha(errs Errors, form *multipart.Form, key string) {
 	}
 }
 
+// Alphanumeric rule checks that value contains alphaumeric characters only.
+func Alphanumeric(errs Errors, form *multipart.Form, key string) {
+	if form == nil && form.Value == nil {
+		return
+	}
+	for _, v := range form.Value[key] {
+		for i := 0; i < len(v); i++ {
+			if v[i] < 48 || v[i] > 57 && v[i] < 65 || v[i] > 90 && v[i] < 97 || v[i] > 122 {
+				errs.Add(key, &Error{Error: ErrNotAlphanumeric})
+				return
+			}
+		}
+	}
+}
+
 // Email rule checks that value represents an email.
 func Email(errs Errors, form *multipart.Form, key string) {
 	if form == nil && form.Value == nil {
