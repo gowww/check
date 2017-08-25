@@ -7,7 +7,6 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -63,27 +62,6 @@ func (c Checker) CheckRequest(r *http.Request) Errors {
 		form.File = r.MultipartForm.File
 	}
 	return c.Check(form)
-}
-
-func fileSize(file *multipart.FileHeader) (int64, error) {
-	if file == nil {
-		return 0, errNoFileProvided
-	}
-	// TODO: In next Go versions, use new Size attribute (https://go-review.googlesource.com/c/39223).
-	f, err := file.Open()
-	if err != nil {
-		return 0, err
-	}
-	var size int64
-	switch ft := f.(type) {
-	case *os.File:
-		fi, _ := ft.Stat()
-		size = fi.Size()
-	default:
-		size, _ = ft.Seek(0, io.SeekEnd)
-		f.Seek(0, io.SeekStart) // Reset reader.
-	}
-	return size, nil
 }
 
 func fileType(file *multipart.FileHeader) (string, error) {

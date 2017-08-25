@@ -180,11 +180,7 @@ func MaxFileSize(max int64) Rule {
 			return
 		}
 		for _, file := range form.File[key] {
-			size, err := fileSize(file)
-			if err != nil {
-				continue
-			}
-			if size > max {
+			if file != nil && file.Size > max {
 				errs.Add(key, &Error{Error: ErrMaxFileSize, Args: []interface{}{i18n.TransFileSize(max)}})
 				return
 			}
@@ -234,11 +230,7 @@ func MinFileSize(min int64) Rule {
 			return
 		}
 		for _, file := range form.File[key] {
-			size, err := fileSize(file)
-			if err != nil {
-				continue
-			}
-			if size < min {
+			if file != nil && file.Size < min {
 				errs.Add(key, &Error{Error: ErrMinFileSize, Args: []interface{}{i18n.TransFileSize(min)}})
 				return
 			}
@@ -319,15 +311,14 @@ func RangeFileSize(min, max int64) Rule {
 			return
 		}
 		for _, file := range form.File[key] {
-			size, err := fileSize(file)
-			if err != nil {
+			if file == nil {
 				continue
 			}
-			if size > max {
+			if file.Size > max {
 				errs.Add(key, &Error{Error: ErrMaxFileSize, Args: []interface{}{i18n.TransFileSize(max)}})
 				return
 			}
-			if size < min {
+			if file.Size < min {
 				errs.Add(key, &Error{Error: ErrMinFileSize, Args: []interface{}{i18n.TransFileSize(min)}})
 				return
 			}
