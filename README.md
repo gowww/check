@@ -39,7 +39,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides request form 
 2. Check data:
 
 	- From a values map, with [Checker.CheckValues](https://godoc.org/github.com/gowww/check#Checker.CheckValues):
-	
+
 		```Go
 		errs := userChecker.CheckValues(map[string][]string{
 			"name":  {"foobar"},
@@ -48,7 +48,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides request form 
 		```
 
 	- From an [http.Request](https://golang.org/pkg/net/http/#Request), with [Checker.CheckRequest](https://godoc.org/github.com/gowww/check#Checker.CheckRequest):
-	
+
 		```Go
 		errs := checker.CheckRequest(r)
 		```
