@@ -50,7 +50,7 @@ Package [check](https://godoc.org/github.com/gowww/check) provides request form 
 	- From an [http.Request](https://golang.org/pkg/net/http/#Request), with [Checker.CheckRequest](https://godoc.org/github.com/gowww/check#Checker.CheckRequest):
 
 		```Go
-		errs := checker.CheckRequest(r)
+		errs := userChecker.CheckRequest(r)
 		```
 
 3. Handle errors:
