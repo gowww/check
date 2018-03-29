@@ -101,7 +101,7 @@ var (
 	}}
 	ErrNotURL = &ErrorID{ID: "notURL", Locales: map[language.Tag]string{
 		language.English: "It's not a web address.",
-		language.French:  "Ce n'est pas adresse web.",
+		language.French:  "Ce n'est pas une adresse web.",
 	}}
 	ErrNotUnique = &ErrorID{ID: "notUnique", Locales: map[language.Tag]string{
 		language.English: "This value already exists.",
@@ -110,6 +110,10 @@ var (
 	ErrRequired = &ErrorID{ID: "required", Locales: map[language.Tag]string{
 		language.English: "A value is required.",
 		language.French:  "Une valeur est requise.",
+	}}
+	ErrWrongPassword = &ErrorID{ID: "password", Locales: map[language.Tag]string{
+		language.English: "The password is wrong.",
+		language.French:  "Le mot de passe est incorrect.",
 	}}
 )
 
