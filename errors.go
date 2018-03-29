@@ -138,7 +138,7 @@ func (e *Error) T(t *i18n.Translator) string {
 }
 
 // TDefault returns the default translation of Error.
-// If Error has no translation for language l, the raw string representation.
+// If Error has no translations, the raw string representation.
 func (e *Error) TDefault(l language.Tag) string {
 	if len(e.Error.Locales) == 0 {
 		return e.String()
