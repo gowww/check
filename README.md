@@ -120,7 +120,7 @@ Function                                                            | Usage     
 [Number](https://godoc.org/github.com/gowww/check#Number)           | `Number`                            | `notNumber`
 [Phone](https://godoc.org/github.com/gowww/check#Phone)             | `Phone`                             | `notPhone`
 [Range](https://godoc.org/github.com/gowww/check#Range)             | `Range(1, 5)`                       | `max:5`, `min:1`, `notNumber`
-[RangeLen](https://godoc.org/github.com/gowww/check#RangeLen)       | `RangeLen(1, 5)`                    | `maxLen:5`, `minLen:1`, `notNumber`
+[RangeLen](https://godoc.org/github.com/gowww/check#RangeLen)       | `RangeLen(1, 5)`                    | `maxLen:5`, `minLen:1`
 [Required](https://godoc.org/github.com/gowww/check#Required)       | `Required`                          | `required`
 [Same](https://godoc.org/github.com/gowww/check#Same)               | `Same("key1", "key2")`              | `notSame:key1,key2`
 [Unique](https://godoc.org/github.com/gowww/check#Unique)           | `Unique(db, "users", "email", "?")` | `notUnique`
