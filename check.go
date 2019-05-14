@@ -45,7 +45,7 @@ func (c Checker) CheckFiles(files map[string][]*multipart.FileHeader) Errors {
 // CheckRequest makes the check for an HTTP request and returns errors.
 //
 // Request data can have multiple values with the same key (or field).
-// In tis case, all values are checked and if one fails, the error is set for the whole key.
+// In this case, all values are checked and if one fails, the error is set for the whole key.
 //
 // Result is guaranteed to be non-nil.
 func (c Checker) CheckRequest(r *http.Request) Errors {

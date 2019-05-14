@@ -85,7 +85,7 @@ if errs.NotEmpty() {
 }
 ```
 
-You can provide custom translations for each error type under keys like "`error` + ErrorID":
+You can provide custom translations for each error type under keys like "`error` + RuleName":
 
 ```Go
 var locales = i18n.Locales{
